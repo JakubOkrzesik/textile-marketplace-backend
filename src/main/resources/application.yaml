@@ -1,16 +1,19 @@
-spring:
-  application:
-    name: textile-marketplace-backend
-  datasource:
-    url: jdbc:mysql://localhost:3307/mydatabase
-    username: root
-    password: yomenik
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
+  spring:
+    application:
+      name: textile-marketplace-backend
+    datasource:
+      url: jdbc:mysql://localhost:3307/mydatabase
+      username: root
+      password: yomenik
+      driver-class-name: com.mysql.cj.jdbc.Driver
+    jpa:
       hibernate:
-        format_sql: true
-    database-platform: org.hibernate.dialect.MySQLDialect
-    database: mysql
+        ddl-auto: update
+      properties:
+        hibernate:
+          format_sql: true
+      database-platform: org.hibernate.dialect.MySQLDialect
+      database: mysql
+
+  server:
+    port: 8081
