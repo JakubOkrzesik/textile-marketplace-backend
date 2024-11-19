@@ -34,6 +34,17 @@ public class LocalUser {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Offer> offers = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<LocalOrder> orders = new ArrayList<>();
+
+    public List<LocalOrder> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<LocalOrder> orders) {
+        this.orders = orders;
+    }
+
     public List<Offer> getOffers() {
         return offers;
     }

@@ -2,6 +2,9 @@ package com.example.textilemarketplacebackend.db.models;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "offer")
 public class Offer {
@@ -28,6 +31,17 @@ public class Offer {
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private LocalUser user;
+
+    @OneToMany(mappedBy = "offerId", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<LocalOrder> orders = new ArrayList<>();
+
+    public List<LocalOrder> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<LocalOrder> orders) {
+        this.orders = orders;
+    }
 
     public LocalUser getUser() {
         return user;
