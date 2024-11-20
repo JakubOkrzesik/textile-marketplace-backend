@@ -1,12 +1,14 @@
 package com.example.textilemarketplacebackend.db.models;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "offer")
+@Data
 public class Offer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,63 +37,4 @@ public class Offer {
     @OneToMany(mappedBy = "offerId", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<LocalOrder> orders = new ArrayList<>();
 
-    public List<LocalOrder> getOrders() {
-        return orders;
-    }
-
-    public void setOrders(List<LocalOrder> orders) {
-        this.orders = orders;
-    }
-
-    public LocalUser getUser() {
-        return user;
-    }
-
-    public void setUser(LocalUser user) {
-        this.user = user;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
-    public String getLongDescription() {
-        return longDescription;
-    }
-
-    public void setLongDescription(String longDescription) {
-        this.longDescription = longDescription;
-    }
-
-    public String getShortDescription() {
-        return shortDescription;
-    }
-
-    public void setShortDescription(String shortDescription) {
-        this.shortDescription = shortDescription;
-    }
-
-    public String getProductName() {
-        return productName;
-    }
-
-    public void setProductName(String productName) {
-        this.productName = productName;
-    }
-
-    public Long getId() { return id; }
-
-    public void setId(Long id) {this.id = id; }
 }
