@@ -1,4 +1,4 @@
-package com.example.textilemarketplacebackend.auth.services;
+package com.example.textilemarketplacebackend.global.services;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

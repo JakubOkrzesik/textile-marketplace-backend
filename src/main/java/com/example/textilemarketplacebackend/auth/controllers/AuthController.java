@@ -4,7 +4,7 @@ import com.example.textilemarketplacebackend.auth.models.requests.Authentication
 import com.example.textilemarketplacebackend.auth.models.requests.RegisterRequest;
 import com.example.textilemarketplacebackend.auth.models.user.UserAlreadyExistsException;
 import com.example.textilemarketplacebackend.auth.services.AuthService;
-import com.example.textilemarketplacebackend.auth.services.ResponseHandlerService;
+import com.example.textilemarketplacebackend.global.services.ResponseHandlerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

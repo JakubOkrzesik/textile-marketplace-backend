@@ -1,7 +1,10 @@
 package com.example.textilemarketplacebackend.db.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +12,9 @@ import java.util.List;
 @Entity
 @Table(name = "offer")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Offer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
