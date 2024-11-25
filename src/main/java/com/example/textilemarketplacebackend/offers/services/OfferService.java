@@ -18,7 +18,7 @@ public class OfferService {
     private final UserService userService;
 
     public List<Offer> getOffers() {
-        return offerRepository.getOffers().orElseThrow(() -> new NoSuchElementException("No offers found"));
+        return offerRepository.getOffers();
     }
 
     public Offer getOfferById(Long id) {
