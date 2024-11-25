@@ -19,6 +19,7 @@ public class OfferController {
     private final ResponseHandlerService responseHandlerService;
     private final OfferService offerService;
 
+    //Fetch offers by designated ID
     @GetMapping("/offers/{id}")
     public ResponseEntity<Object> getOfferById(@PathVariable Long id) {
         try {
@@ -28,6 +29,7 @@ public class OfferController {
         }
     }
 
+    //Retrieve all offers from DB
     @GetMapping("/offers")
     public ResponseEntity<Object> getOffers() {
         try {
@@ -37,6 +39,7 @@ public class OfferController {
         }
     }
 
+    //Add new offer
     @PostMapping("/offers/add")
     public ResponseEntity<Object> postOffer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @RequestBody Offer offer) {
         try {
@@ -46,10 +49,13 @@ public class OfferController {
             return responseHandlerService.generateResponse("An error occurred while posting your advert", HttpStatus.MULTI_STATUS,e);
         }
 
-
-        /*emailService.sendPostNotif(offer);*/
+        /*
+        TODO
+        emailService.sendPostNotif(offer);
+        */
     }
 
+    //Edits exising offer
     @PatchMapping("/offers/{id}/edit")
     public ResponseEntity<Object> editOffer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @PathVariable("id") Long id, @RequestBody Offer editedOffer) {
         try {
@@ -60,6 +66,7 @@ public class OfferController {
         }
     }
 
+    //Deletes offer
     @DeleteMapping("/offers/{id}/delete")
     public ResponseEntity<Object> deleteOffer(@PathVariable("id") Long id) {
         try {
@@ -70,8 +77,4 @@ public class OfferController {
         }
     }
 
-    /*@GetMapping("/offers/{id}/perms")
-    public ResponseEntity<Boolean> getOfferPerms(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @PathVariable("id") Long id) {
-        
-    }*/
 }
