@@ -1,6 +1,7 @@
 package com.example.textilemarketplacebackend.orders.controllers;
 
 import com.example.textilemarketplacebackend.db.models.LocalOrder;
+import com.example.textilemarketplacebackend.db.models.OrderStatus;
 import com.example.textilemarketplacebackend.orders.services.OrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,19 +32,40 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
-    @PostMapping
-    public ResponseEntity<?> createOrder(@RequestBody LocalOrder orderRequest) {
-        try {
-            LocalOrder savedOrder = orderService.createOrder(orderRequest);
-            return ResponseEntity.ok(savedOrder);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @PostMapping("/create")
+    public ResponseEntity<LocalOrder> createOrderFromOffer(@RequestParam Long userId, @RequestParam Long offerId, @RequestParam Integer quantity) {
+        LocalOrder order = orderService.createOrderFromOffer(userId, offerId, quantity);
+        return ResponseEntity.ok(order);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
-        orderService.deleteOrder(id);
-        return ResponseEntity.noContent().build();
+    @PutMapping("/{id}/accept")
+    public ResponseEntity<?> acceptOrder(@PathVariable Long id) {
+        orderService.updateOrderStatus(id, OrderStatus.ACCEPTED);
+        return ResponseEntity.ok("Order accepted.");
+    }
+
+    @PutMapping("/{id}/reject")
+    public ResponseEntity<?> rejectOrder(@PathVariable Long id) {
+        orderService.updateOrderStatus(id, OrderStatus.REJECTED);
+        return ResponseEntity.ok("Order rejected.");
+    }
+
+    @PutMapping("/{id}/counteroffer")
+    public ResponseEntity<?> addCounteroffer(@PathVariable Long id, @RequestBody String counteroffer) {
+        orderService.addCounteroffer(id, counteroffer);
+        return ResponseEntity.ok("Counteroffer added, status updated to negotiation.");
+    }
+
+    @PutMapping("/{id}/accept-counteroffer")
+    public ResponseEntity<?> acceptCounteroffer(@PathVariable Long id) {
+        orderService.updateOrderStatus(id, OrderStatus.ACCEPTED);
+        return ResponseEntity.ok("Counteroffer accepted, order completed.");
+    }
+
+    @PutMapping("/{id}/reject-counteroffer")
+    public ResponseEntity<?> rejectCounteroffer(@PathVariable Long id) {
+        orderService.updateOrderStatus(id, OrderStatus.REJECTED);
+        return ResponseEntity.ok("Counteroffer rejected, order closed.");
     }
 }
+

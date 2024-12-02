@@ -25,4 +25,11 @@ public class LocalOrder {
     @JoinColumn(name = "offer_id", nullable = false)
     private Offer offerId;
 
+    @Column(name = "counteroffer", length = 512)
+    private String counteroffer;
+
+    @Enumerated
+    @Column(name = "order_status", nullable = false)
+    private OrderStatus orderStatus;
+
 }
