@@ -1,5 +1,6 @@
 package com.example.textilemarketplacebackend.auth.services;
 
+import com.example.textilemarketplacebackend.auth.models.TokenType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -16,7 +17,7 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY = "b8f3836929ede45eb4dec25a32f03baaf5958b4d819a135a31d788f25e23f96985e547d70e702d9041cc2bf9c6b6076e4d48034a02c4584b2a8a503b8d00756c";
+    private static final String SECRET_KEY = "secret_key";
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -26,13 +27,27 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
+    public String extractTokenType(String token) {
+        return extractClaim(token, claims -> claims.get("token_type", String.class));
+    }
+
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(UserDetails userDetails){
-        return generateToken(new HashMap<>(), userDetails);
+    public String generateAuthToken(UserDetails userDetails){
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("token_type", TokenType.AUTH);
+
+        return generateToken(extraClaims, userDetails);
+    }
+
+    public String generatePasswordResetToken(UserDetails userDetails){
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("token_type", TokenType.PASSWORD_RESET);
+
+        return generateToken(extraClaims, userDetails);
     }
 
     public String generateToken(Map<String,Object> ExtraClaims, UserDetails userDetails){

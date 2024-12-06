@@ -1,12 +1,14 @@
 package com.example.textilemarketplacebackend.auth.services;
 
 import com.example.textilemarketplacebackend.auth.models.requests.AuthenticationRequest;
-import com.example.textilemarketplacebackend.auth.models.requests.AuthenticationResponse;
+import com.example.textilemarketplacebackend.auth.models.requests.ForgetPasswordRequest;
+import com.example.textilemarketplacebackend.auth.models.requests.TokenResponse;
 import com.example.textilemarketplacebackend.auth.models.requests.RegisterRequest;
 import com.example.textilemarketplacebackend.auth.models.user.Role;
 import com.example.textilemarketplacebackend.auth.models.user.UserAlreadyExistsException;
 import com.example.textilemarketplacebackend.auth.models.user.UserRepository;
 import com.example.textilemarketplacebackend.db.models.LocalUser;
+import com.example.textilemarketplacebackend.mail.services.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +23,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final EmailService emailService;
 
     public String register(RegisterRequest request) throws UserAlreadyExistsException {
         if(userRepository.findByEmail(request.getEmail()).isPresent()){
@@ -41,16 +44,27 @@ public class AuthService {
         return "Your account has been created";
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public TokenResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()
                 )
         );
+        // db query two times which is not ideal
+
         LocalUser user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        String jwtToken = jwtService.generateToken(user);
-        return AuthenticationResponse.builder().token(jwtToken).build();
+
+        String jwtToken = jwtService.generateAuthToken(user);
+        return TokenResponse.builder().token(jwtToken).build();
+    }
+
+    public TokenResponse resetPassword(ForgetPasswordRequest request) {
+        LocalUser user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        String resetToken = jwtService.generatePasswordResetToken(user);
+        return TokenResponse.builder().token(resetToken).build();
     }
 }
