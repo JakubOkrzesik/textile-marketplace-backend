@@ -3,6 +3,7 @@ package com.example.textilemarketplacebackend.offers.controllers;
 import com.example.textilemarketplacebackend.db.models.Offer;
 import com.example.textilemarketplacebackend.global.services.ResponseHandlerService;
 
+import com.example.textilemarketplacebackend.offers.models.OfferDTO;
 import com.example.textilemarketplacebackend.offers.services.OfferService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -59,7 +60,7 @@ public class OfferController {
     @PatchMapping("/offers/{id}/edit")
     public ResponseEntity<Object> editOffer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @PathVariable("id") Long id, @RequestBody Offer editedOffer) {
         try {
-            offerService.editOffer(authHeader, id, editedOffer);
+            offerService.editOffer(authHeader, id, (OfferDTO) editedOffer);
             return responseHandlerService.generateResponse("Offer edited successfully", HttpStatus.OK,null);
         } catch (Exception e) {
             return responseHandlerService.generateResponse("An error occurred while editing your advert", HttpStatus.MULTI_STATUS,e);
