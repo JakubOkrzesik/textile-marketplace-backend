@@ -3,6 +3,7 @@ package com.example.textilemarketplacebackend.orders.controllers;
 import com.example.textilemarketplacebackend.db.models.LocalOrder;
 import com.example.textilemarketplacebackend.db.models.OrderStatus;
 import com.example.textilemarketplacebackend.global.services.ResponseHandlerService;
+import com.example.textilemarketplacebackend.orders.models.LocalOrderDTO;
 import com.example.textilemarketplacebackend.orders.services.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -18,7 +19,8 @@ public class OrderController {
     private final ResponseHandlerService responseHandlerService;
     private final OrderService orderService;
 
-    @GetMapping
+    //Returns all orders now using DTO
+    @GetMapping("/getAll")
     public ResponseEntity<Object> getAllOrders() {
         try {
             return responseHandlerService.generateResponse("Orders fetched successfully", HttpStatus.OK, orderService.getAllOrders());
@@ -43,8 +45,9 @@ public class OrderController {
     @PostMapping("/create")
     public ResponseEntity<Object> createOrderFromOffer(@RequestParam Long userId, @RequestParam Long offerId, @RequestParam Integer quantity) {
         try {
-            LocalOrder order = orderService.createOrderFromOffer(userId, offerId, quantity);
-            return responseHandlerService.generateResponse("Order created successfully", HttpStatus.CREATED, order);
+            // Zamiast pełnego obiektu, zwracamy DTO
+            LocalOrderDTO orderDTO = orderService.createOrderFromOffer(userId, offerId, quantity);
+            return responseHandlerService.generateResponse("Order created successfully", HttpStatus.CREATED, orderDTO);
         } catch (Exception e) {
             return responseHandlerService.generateResponse("Failed to create order", HttpStatus.INTERNAL_SERVER_ERROR, e);
         }

@@ -33,27 +33,37 @@ public class OfferService {
         return new OfferDTO(offer); // Zwracamy DTO zamiast encji
     }
 
-    public void postOffer(String authHeader, Offer offer) {
+    public void postOffer(String authHeader, OfferDTO offerDTO) {
+        Offer offer = new Offer();
+        offer.setProductName(offerDTO.getProductName());
+        offer.setShortDescription(offerDTO.getShortDescription());
+        offer.setLongDescription(offerDTO.getLongDescription());
+        offer.setPrice(offerDTO.getPrice());
+        offer.setQuantity(offerDTO.getQuantity());
         LocalUser user = userService.extractUserFromToken(authHeader);
         offer.setUser(user);
         offerRepository.save(offer);
     }
 
-    public void editOffer(String authHeader, Long id, OfferDTO editedOfferDTO) {
-        // Download from DB
-        Offer offer = offerRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Offer not found"));
-        offer.setProductName(editedOfferDTO.getProductName());
-        offer.setShortDescription(editedOfferDTO.getShortDescription());
-        offer.setLongDescription(editedOfferDTO.getLongDescription());
-        offer.setPrice(editedOfferDTO.getPrice());
-        offer.setQuantity(editedOfferDTO.getQuantity());
-        offerRepository.save(offer);
+    public void editOffer(String authHeader, Long id, OfferDTO offerDTO) {
+        // Download existing offer from DB
+        Offer existingOffer = offerRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Offer not found"));
+
+        // Update using DTO
+        existingOffer.setProductName(offerDTO.getProductName());
+        existingOffer.setShortDescription(offerDTO.getShortDescription());
+        existingOffer.setLongDescription(offerDTO.getLongDescription());
+        existingOffer.setPrice(offerDTO.getPrice());
+        existingOffer.setQuantity(offerDTO.getQuantity());
+        offerRepository.save(existingOffer);
     }
-
-
 
     public void deleteOffer(Long id) {
-        OfferDTO offer = getOfferById(id);
+        Offer offer = offerRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Offer not found"));
+
         offerRepository.delete(offer);
     }
+
 }

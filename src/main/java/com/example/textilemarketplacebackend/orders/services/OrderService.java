@@ -6,10 +6,12 @@ import com.example.textilemarketplacebackend.db.models.Offer;
 import com.example.textilemarketplacebackend.db.models.OrderStatus;
 import com.example.textilemarketplacebackend.db.models.LocalUser;
 import com.example.textilemarketplacebackend.offers.models.OfferRepository;
+import com.example.textilemarketplacebackend.orders.models.LocalOrderDTO;
 import com.example.textilemarketplacebackend.orders.models.OrderRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -24,9 +26,12 @@ public class OrderService {
         this.userRepository = userRepository;
     }
 
-    // Lists all orders
-    public List<LocalOrder> getAllOrders() {
-        return orderRepository.findAll();
+    // Lists all orders and returns them as DTOs
+    public List<LocalOrderDTO> getAllOrders() {
+        List<LocalOrder> orders = orderRepository.findAll();
+        return orders.stream()
+                .map(LocalOrderDTO::new) // Konwertujemy LocalOrder na LocalOrderDTO
+                .collect(Collectors.toList());
     }
 
     // Finds specific order by ID
@@ -34,8 +39,8 @@ public class OrderService {
         return orderRepository.findById(id).orElse(null);
     }
 
-    // When You click on some offer that interest You it becomes and order with specific enum value
-    public LocalOrder createOrderFromOffer(Long userId, Long offerId, Integer quantity) {
+    // Creates an order from an offer and returns the created order as DTO
+    public LocalOrderDTO createOrderFromOffer(Long userId, Long offerId, Integer quantity) {
         Offer offer = offerRepository.findById(offerId)
                 .orElseThrow(() -> new IllegalArgumentException("Offer not found"));
 
@@ -57,7 +62,9 @@ public class OrderService {
         order.setOrderQuantity(quantity);
         order.setOrderStatus(OrderStatus.PENDING);
 
-        return orderRepository.save(order);
+        // Save and return the order as DTO
+        LocalOrder savedOrder = orderRepository.save(order);
+        return new LocalOrderDTO(savedOrder); // Zwracamy DTO
     }
 
     //

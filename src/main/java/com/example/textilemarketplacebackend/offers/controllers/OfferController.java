@@ -40,34 +40,34 @@ public class OfferController {
         }
     }
 
-    //Add new offer
+    //Add new offer (Now using DTO)
     @PostMapping("/offers/add")
-    public ResponseEntity<Object> postOffer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @RequestBody Offer offer) {
+    public ResponseEntity<Object> postOffer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @RequestBody OfferDTO offerDTO) {
         try {
-            offerService.postOffer(authHeader, offer);
-            return responseHandlerService.generateResponse("Offer posted successfully", HttpStatus.OK,null);
+            offerService.postOffer(authHeader, offerDTO);
+            return responseHandlerService.generateResponse("Offer posted successfully", HttpStatus.OK, null);
         } catch (Exception e) {
-            return responseHandlerService.generateResponse("An error occurred while posting your advert", HttpStatus.MULTI_STATUS,e);
+            return responseHandlerService.generateResponse("An error occurred while posting your advert", HttpStatus.MULTI_STATUS, e);
         }
-
-        /*
-        TODO
-        emailService.sendPostNotif(offer);
-        */
     }
+
 
     //Edits exising offer
     @PatchMapping("/offers/{id}/edit")
-    public ResponseEntity<Object> editOffer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @PathVariable("id") Long id, @RequestBody Offer editedOffer) {
+    public ResponseEntity<Object> editOffer(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
+            @PathVariable("id") Long id,
+            @RequestBody OfferDTO editedOfferDTO) {
         try {
-            offerService.editOffer(authHeader, id, (OfferDTO) editedOffer);
-            return responseHandlerService.generateResponse("Offer edited successfully", HttpStatus.OK,null);
+            offerService.editOffer(authHeader, id, editedOfferDTO);
+            return responseHandlerService.generateResponse("Offer edited successfully", HttpStatus.OK, null);
         } catch (Exception e) {
-            return responseHandlerService.generateResponse("An error occurred while editing your advert", HttpStatus.MULTI_STATUS,e);
+            return responseHandlerService.generateResponse("An error occurred while editing your advert", HttpStatus.MULTI_STATUS, e);
         }
     }
 
-    //Deletes offer
+
+    //Deletes offer (Now using DTO)
     @DeleteMapping("/offers/{id}/delete")
     public ResponseEntity<Object> deleteOffer(@PathVariable("id") Long id) {
         try {

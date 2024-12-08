@@ -1,5 +1,6 @@
 package com.example.textilemarketplacebackend.db.models;
 
+import com.example.textilemarketplacebackend.orders.models.LocalOrderDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +9,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "local_order")
-public class LocalOrder {
+public class LocalOrder extends LocalOrderDTO {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
