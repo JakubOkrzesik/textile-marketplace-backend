@@ -23,8 +23,8 @@ public class MailController {
     private final EmailService emailService;
     private final ResponseHandlerService responseService;
 
-    @PostMapping("/send")
-    public ResponseEntity<Object> sendEmail(@RequestBody List<MailRequest> mailRequestList) {
+    @PostMapping("/send_notif")
+    public ResponseEntity<Object> sendNotificationEmail(@RequestBody List<MailRequest> mailRequestList) {
         try {
             return responseService.generateResponse("Response and status for emails has been fetched", HttpStatus.CREATED, emailService.sendEmail(mailRequestList));
         } catch (InvalidMailRequestException e) {

@@ -8,6 +8,10 @@ import com.example.textilemarketplacebackend.auth.models.user.Role;
 import com.example.textilemarketplacebackend.auth.models.user.UserAlreadyExistsException;
 import com.example.textilemarketplacebackend.auth.models.user.UserRepository;
 import com.example.textilemarketplacebackend.db.models.LocalUser;
+import com.example.textilemarketplacebackend.mail.models.InternalMailServiceErrorException;
+import com.example.textilemarketplacebackend.mail.models.MailRequest;
+import com.example.textilemarketplacebackend.mail.models.MailRequestType;
+import com.example.textilemarketplacebackend.mail.models.MailResponseWrapper;
 import com.example.textilemarketplacebackend.mail.services.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +19,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -60,11 +67,21 @@ public class AuthService {
         return TokenResponse.builder().token(jwtToken).build();
     }
 
-    public TokenResponse resetPassword(ForgetPasswordRequest request) {
+    public MailResponseWrapper resetPassword(ForgetPasswordRequest request) throws InternalMailServiceErrorException {
         LocalUser user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         String resetToken = jwtService.generatePasswordResetToken(user);
-        return TokenResponse.builder().token(resetToken).build();
+
+        MailRequest mailRequest = MailRequest.builder()
+                .password_reset_url(String.format("%s/password_reset?token=%s", "front_url", resetToken))
+                .type(MailRequestType.PASSWORD_RESET)
+                .recipients(new String[]{request.getEmail()})
+                .build();
+
+        List<MailRequest> mailRequestList = new ArrayList<>();
+        mailRequestList.add(mailRequest);
+
+        return emailService.sendEmail(mailRequestList);
     }
 }

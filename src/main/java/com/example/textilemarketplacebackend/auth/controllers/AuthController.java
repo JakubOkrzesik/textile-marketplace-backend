@@ -6,6 +6,7 @@ import com.example.textilemarketplacebackend.auth.models.requests.RegisterReques
 import com.example.textilemarketplacebackend.auth.models.user.UserAlreadyExistsException;
 import com.example.textilemarketplacebackend.auth.services.AuthService;
 import com.example.textilemarketplacebackend.global.services.ResponseHandlerService;
+import com.example.textilemarketplacebackend.mail.models.InternalMailServiceErrorException;
 import com.example.textilemarketplacebackend.mail.services.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -43,11 +44,13 @@ public class AuthController {
     }
 
     @PostMapping("/reset_password")
-    public ResponseEntity<Object> resetPasword(@RequestBody ForgetPasswordRequest request) {
+    public ResponseEntity<Object> resetPassword(@RequestBody ForgetPasswordRequest request) {
         try {
             return responseHandler.generateResponse("An email with a password reset link should arrive in your inbox shortly", HttpStatus.ACCEPTED, authService.resetPassword(request));
         } catch (UsernameNotFoundException e) {
             return responseHandler.generateResponse("User with this email was not found. Try typing your email again", HttpStatus.NOT_FOUND, null);
-        } catch ()
+        } catch (InternalMailServiceErrorException e) {
+            return responseHandler.generateResponse("An error occured while processing your request", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 }

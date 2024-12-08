@@ -1,16 +1,17 @@
 package com.example.textilemarketplacebackend.mail.models;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class MailRequest {
     private String[] recipients;
     private String body;
-    // maybe change to enum
-    private String type;
+    private MailRequestType type;
     private String password_reset_url;
 }
