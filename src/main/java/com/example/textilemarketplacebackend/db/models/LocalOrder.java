@@ -1,6 +1,7 @@
 package com.example.textilemarketplacebackend.db.models;
 
 import com.example.textilemarketplacebackend.orders.models.LocalOrderDTO;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,10 +21,12 @@ public class LocalOrder extends LocalOrderDTO {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private LocalUser user;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "offer_id", nullable = false)
+    @JsonBackReference
     private Offer offerId;
 
     @Column(name = "counteroffer", length = 512)
@@ -32,5 +35,11 @@ public class LocalOrder extends LocalOrderDTO {
     @Enumerated
     @Column(name = "order_status", nullable = false)
     private OrderStatus orderStatus;
+
+    @Override
+    public Long getOfferId() {
+        return offerId.getId(); // Returns ID to Offer
+    }
+
 
 }

@@ -15,14 +15,14 @@ public class LocalOrderDTO {
     private Long id;
     private Integer orderQuantity;
     private Long userId;
-    private Offer offerId;
+    private Long offerId;
     private String counteroffer;
     private OrderStatus orderStatus;
 
     public LocalOrderDTO(LocalOrder localOrder) {
         this.id = localOrder.getId();
         this.orderQuantity = localOrder.getOrderQuantity();
-        this.userId = (localOrder.getUser() != null) ? localOrder.getUser().getId() : null;
+        this.userId = localOrder.getUser().getId();
         this.offerId = localOrder.getOfferId();
         this.counteroffer = localOrder.getCounteroffer();
         this.orderStatus = localOrder.getOrderStatus();
