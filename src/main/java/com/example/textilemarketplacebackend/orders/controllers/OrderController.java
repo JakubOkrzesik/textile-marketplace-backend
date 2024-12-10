@@ -84,6 +84,16 @@ public class OrderController {
         }
     }
 
+    @PutMapping("/{id}/negotiation")
+    public ResponseEntity<Object> negotiateOrder(@PathVariable Long id) {
+        try {
+            orderService.updateOrderStatus(id, OrderStatus.NEGOTIATION);
+            return responseHandlerService.generateResponse("Order in negotiation", HttpStatus.OK, null);
+        } catch (Exception e) {
+            return responseHandlerService.generateResponse("Failed to negotiate", HttpStatus.INTERNAL_SERVER_ERROR, e);
+        }
+    }
+
     @PutMapping("/{id}/counteroffer")
     public ResponseEntity<Object> addCounteroffer(@PathVariable Long id, @RequestBody String counteroffer) {
         try {
