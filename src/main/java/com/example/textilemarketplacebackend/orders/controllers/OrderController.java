@@ -1,6 +1,5 @@
 package com.example.textilemarketplacebackend.orders.controllers;
 
-import com.example.textilemarketplacebackend.db.models.LocalOrder;
 import com.example.textilemarketplacebackend.db.models.OrderStatus;
 import com.example.textilemarketplacebackend.global.services.ResponseHandlerService;
 import com.example.textilemarketplacebackend.orders.models.LocalOrderDTO;
