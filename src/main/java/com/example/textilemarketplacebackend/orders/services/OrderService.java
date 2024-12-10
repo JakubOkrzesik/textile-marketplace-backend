@@ -30,7 +30,7 @@ public class OrderService {
     public List<LocalOrderDTO> getAllOrders() {
         List<LocalOrder> orders = orderRepository.findAll();
         return orders.stream()
-                .map(LocalOrderDTO::new) // Konwertujemy LocalOrder na LocalOrderDTO
+                .map(LocalOrderDTO::new)
                 .collect(Collectors.toList());
     }
 

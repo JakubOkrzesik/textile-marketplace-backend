@@ -43,15 +43,26 @@ public class OrderController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Object> createOrderFromOffer(@RequestParam Long userId, @RequestParam Long offerId, @RequestParam Integer quantity) {
+    public ResponseEntity<Object> createOrderFromOffer(@RequestBody LocalOrderDTO orderDTO) {
         try {
-            // Zamiast pełnego obiektu, zwracamy DTO
-            LocalOrderDTO orderDTO = orderService.createOrderFromOffer(userId, offerId, quantity);
-            return responseHandlerService.generateResponse("Order created successfully", HttpStatus.CREATED, orderDTO);
+            // Validation of quantity to check if its not null
+            if (orderDTO.getOrderQuantity() == null) {
+                return responseHandlerService.generateResponse("Quantity is required", HttpStatus.BAD_REQUEST, null);
+            }
+
+            // Check if ids are transfered
+            if (orderDTO.getUserId() == null || orderDTO.getOfferId() == null) {
+                return responseHandlerService.generateResponse("User ID and Offer ID are required", HttpStatus.BAD_REQUEST, null);
+            }
+
+            LocalOrderDTO createdOrder = orderService.createOrderFromOffer(orderDTO.getUserId(), orderDTO.getOfferId(), orderDTO.getOrderQuantity());
+
+            return responseHandlerService.generateResponse("Order created successfully", HttpStatus.CREATED, createdOrder);
         } catch (Exception e) {
             return responseHandlerService.generateResponse("Failed to create order", HttpStatus.INTERNAL_SERVER_ERROR, e);
         }
     }
+
 
     @PutMapping("/{id}/accept")
     public ResponseEntity<Object> acceptOrder(@PathVariable Long id) {

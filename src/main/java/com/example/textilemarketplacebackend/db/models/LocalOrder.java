@@ -19,7 +19,7 @@ public class LocalOrder extends LocalOrderDTO {
     @Column(name = "order_quantity", nullable = false)
     private Integer orderQuantity;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
     private LocalUser user;

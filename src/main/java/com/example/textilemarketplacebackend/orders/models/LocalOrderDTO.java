@@ -1,7 +1,6 @@
 package com.example.textilemarketplacebackend.orders.models;
 
 import com.example.textilemarketplacebackend.db.models.LocalOrder;
-import com.example.textilemarketplacebackend.db.models.Offer;
 import com.example.textilemarketplacebackend.db.models.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
