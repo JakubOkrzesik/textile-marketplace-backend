@@ -31,15 +31,13 @@ public class OrderController {
     @GetMapping("/{id}")
     public ResponseEntity<Object> getOrderById(@PathVariable Long id) {
         try {
-            LocalOrder order = orderService.getOrderById(id);
-            if (order == null) {
-                return responseHandlerService.generateResponse("Order not found", HttpStatus.NOT_FOUND, null);
-            }
-            return responseHandlerService.generateResponse("Order fetched successfully", HttpStatus.OK, order);
+            LocalOrderDTO orderDTO = orderService.getOrderById(id);
+            return responseHandlerService.generateResponse("Order fetched successfully", HttpStatus.OK, orderDTO);
         } catch (Exception e) {
-            return responseHandlerService.generateResponse("Failed to fetch order", HttpStatus.INTERNAL_SERVER_ERROR, e);
+            return responseHandlerService.generateResponse("Fetching order failed", HttpStatus.INTERNAL_SERVER_ERROR, e);
         }
     }
+
 
     @PostMapping("/create")
     public ResponseEntity<Object> createOrderFromOffer(@RequestBody LocalOrderDTO orderDTO) {

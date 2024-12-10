@@ -11,6 +11,7 @@ import com.example.textilemarketplacebackend.orders.models.OrderRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,9 +36,12 @@ public class OrderService {
     }
 
     // Finds specific order by ID
-    public LocalOrder getOrderById(Long id) {
-        return orderRepository.findById(id).orElse(null);
+    public LocalOrderDTO getOrderById(Long id) {
+        LocalOrder order = orderRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("No order found with this Id"));
+        return new LocalOrderDTO(order); // Zwracamy DTO zamiast encji
     }
+
 
     // Creates an order from an offer and returns the created order as DTO
     public LocalOrderDTO createOrderFromOffer(Long userId, Long offerId, Integer quantity) {
