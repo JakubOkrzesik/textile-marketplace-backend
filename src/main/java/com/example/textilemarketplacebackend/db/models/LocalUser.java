@@ -1,6 +1,9 @@
 package com.example.textilemarketplacebackend.db.models;
 
 import com.example.textilemarketplacebackend.auth.models.user.Role;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,6 +23,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class LocalUser implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,6 +52,7 @@ public class LocalUser implements UserDetails {
     private Role role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JsonManagedReference
     private List<Offer> offers = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
@@ -61,5 +66,20 @@ public class LocalUser implements UserDetails {
     @Override
     public String getUsername() {
         return email;
+    }
+
+    @Override
+    public String toString() {
+        return "LocalUser{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", nip=" + nip +
+                ", role=" + role +
+                ", offers=" + offers +
+                ", orders=" + orders +
+                '}';
     }
 }

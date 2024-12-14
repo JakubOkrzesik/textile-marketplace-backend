@@ -1,5 +1,8 @@
 package com.example.textilemarketplacebackend.db.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +18,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Offer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,6 +42,7 @@ public class Offer {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private LocalUser user;
 
     @OneToMany(mappedBy = "offerId", cascade = CascadeType.REMOVE, orphanRemoval = true)
