@@ -47,6 +47,9 @@ public class LocalUser implements UserDetails {
     @Column(name = "role", nullable = false)
     private Role role;
 
+    @Column(name = "isActivated", nullable = false)
+    private boolean isActivated;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Offer> offers = new ArrayList<>();
 

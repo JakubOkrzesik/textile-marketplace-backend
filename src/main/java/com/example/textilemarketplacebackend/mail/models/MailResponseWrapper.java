@@ -9,6 +9,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MailResponseWrapper {
-    private List<MailResponse> data;
+public class MailResponseWrapper<T> {
+    private T data;
+    private String message;
+    private int status;
 }

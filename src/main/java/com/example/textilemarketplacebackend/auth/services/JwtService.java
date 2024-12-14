@@ -43,6 +43,13 @@ public class JwtService {
         return generateToken(extraClaims, userDetails, new Date(System.currentTimeMillis() + 60000*60*24));
     }
 
+    public String generateAccountActivationToken(UserDetails userDetails) {
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("token_type", TokenType.ACCOUNT_ACTIVATION);
+
+        return generateToken(extraClaims, userDetails, new Date(System.currentTimeMillis() + 60000*60*48));
+    }
+
     public String generatePasswordResetToken(UserDetails userDetails){
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("token_type", TokenType.PASSWORD_RESET);
@@ -63,10 +70,30 @@ public class JwtService {
                 .compact();
     }
 
-    public boolean isUserTokenValid(String token, UserDetails userDetails){
+    public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        final TokenType token_type = TokenType.valueOf(extractTokenType(token));
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token) && token_type.equals(TokenType.AUTH);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    }
+
+    public boolean isTokenValidForType(String token, UserDetails userDetails, TokenType expectedType) {
+        try {
+            final TokenType tokenType = TokenType.valueOf(extractTokenType(token));
+            return isTokenValid(token, userDetails) && tokenType.equals(expectedType);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public boolean isUserTokenValid(String token, UserDetails userDetails) {
+        return isTokenValidForType(token, userDetails, TokenType.AUTH);
+    }
+
+    public boolean isPasswordTokenValid(String token, UserDetails userDetails) {
+        return isTokenValidForType(token, userDetails, TokenType.PASSWORD_RESET);
+    }
+
+    public boolean isAccountActivationTokenValid(String token, UserDetails userDetails) {
+        return isTokenValidForType(token, userDetails, TokenType.ACCOUNT_ACTIVATION);
     }
 
     private boolean isTokenExpired(String token) {
