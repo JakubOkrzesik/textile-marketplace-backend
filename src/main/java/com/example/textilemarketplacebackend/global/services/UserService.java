@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -18,5 +20,13 @@ public class UserService {
         String email = jwtService.extractUsername(jwt);
 
         return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User with this email was not found"));
+    }
+
+    public Optional<LocalUser> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public void save(LocalUser user) {
+        userRepository.save(user);
     }
 }
