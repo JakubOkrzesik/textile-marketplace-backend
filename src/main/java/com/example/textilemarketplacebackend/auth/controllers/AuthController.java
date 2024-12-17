@@ -4,12 +4,15 @@ import com.example.textilemarketplacebackend.auth.models.requests.Authentication
 import com.example.textilemarketplacebackend.auth.models.requests.ForgetPasswordRequest;
 import com.example.textilemarketplacebackend.auth.models.requests.PasswordResetRequest;
 import com.example.textilemarketplacebackend.auth.models.requests.RegisterRequest;
+import com.example.textilemarketplacebackend.auth.models.user.NipAlreadyExistsException;
 import com.example.textilemarketplacebackend.auth.models.user.UserAlreadyExistsException;
 import com.example.textilemarketplacebackend.auth.services.AuthService;
 import com.example.textilemarketplacebackend.global.services.ResponseHandlerService;
 import com.example.textilemarketplacebackend.mail.models.InternalMailServiceErrorException;
 import com.example.textilemarketplacebackend.mail.models.InvalidMailRequestException;
 import com.example.textilemarketplacebackend.mail.services.EmailService;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,19 +30,21 @@ public class AuthController {
 
 
     // endpoint registers user and sends account activation email
+    // TODO further checks for NIP number in the database - email was sent when the same NIP number was entered but account was not created
     @PostMapping("/register")
-    public ResponseEntity<Object> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<Object> register(@Valid @RequestBody RegisterRequest request) {
         try {
             authService.register(request);
             return responseHandler.generateResponse("Your account has been created. Please activate it via an email that was sent to your inbox.", HttpStatus.OK, null);
-        } catch (UserAlreadyExistsException e) {
+        } catch (ConstraintViolationException e) {
+            return responseHandler.generateResponse("Invalid request. Please check your request params.", HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (UserAlreadyExistsException | NipAlreadyExistsException e) {
             return responseHandler.generateResponse("Registration unsuccessful. User with this email already exists. Please log in.", HttpStatus.CONFLICT, e.getMessage());
         } catch (InternalMailServiceErrorException e) {
             return responseHandler.generateResponse("Failure while sending the activation email.", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         } catch (InvalidMailRequestException e) {
             return responseHandler.generateResponse("Invalid request sent to the email service.", HttpStatus.BAD_REQUEST, e.getMessage());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return responseHandler.generateResponse("Registration unsuccessful. Internal error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
@@ -59,7 +64,7 @@ public class AuthController {
 
     // endpoint sends jwt token when login is successful
     @PostMapping("/authenticate")
-    public ResponseEntity<Object> authenticate(@RequestBody AuthenticationRequest request) {
+    public ResponseEntity<Object> authenticate(@Valid @RequestBody AuthenticationRequest request) {
         try {
             return ResponseEntity.ok(authService.authenticate(request));
         } catch (Exception e) {

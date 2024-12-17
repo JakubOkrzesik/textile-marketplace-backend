@@ -1,4 +1,4 @@
-package com.example.textilemarketplacebackend.db.models;
+package com.example.textilemarketplacebackend.orders.models;
 
 public enum OrderStatus {
     PENDING,

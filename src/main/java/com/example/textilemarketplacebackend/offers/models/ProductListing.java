@@ -1,5 +1,7 @@
-package com.example.textilemarketplacebackend.db.models;
+package com.example.textilemarketplacebackend.offers.models;
 
+import com.example.textilemarketplacebackend.orders.models.Order;
+import com.example.textilemarketplacebackend.auth.models.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -19,10 +21,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Offer {
+public class ProductListing {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
+    @Column(name = "product_id", nullable = false)
     private Long id;
 
     @Column(name = "product_name", nullable = false)
@@ -43,9 +45,9 @@ public class Offer {
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
-    private LocalUser user;
+    private User user;
 
-    @OneToMany(mappedBy = "offerId", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<LocalOrder> orders = new ArrayList<>();
+    @OneToMany(mappedBy = "productListing", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Order> orders = new ArrayList<>();
 
 }

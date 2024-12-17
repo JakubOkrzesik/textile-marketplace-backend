@@ -1,6 +1,7 @@
 package com.example.textilemarketplacebackend.auth.configs;
 
 import com.example.textilemarketplacebackend.auth.models.user.UserRepository;
+import com.example.textilemarketplacebackend.global.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,11 +21,11 @@ import java.net.http.HttpClient;
 @Configuration
 @RequiredArgsConstructor
 public class AuthConfig {
-    private final UserRepository repository;
+    private final UserService userService;
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> repository.findByEmail(username)
+        return username -> userService.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 

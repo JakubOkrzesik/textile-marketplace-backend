@@ -1,13 +1,19 @@
 package com.example.textilemarketplacebackend.orders.controllers;
 
-import com.example.textilemarketplacebackend.db.models.OrderStatus;
+import com.example.textilemarketplacebackend.orders.models.Order;
+import com.example.textilemarketplacebackend.orders.models.OrderStatus;
 import com.example.textilemarketplacebackend.global.services.ResponseHandlerService;
-import com.example.textilemarketplacebackend.orders.models.LocalOrderDTO;
+import com.example.textilemarketplacebackend.orders.models.OrderDTO;
+import com.example.textilemarketplacebackend.orders.models.SelfPurchaseNotAllowedException;
 import com.example.textilemarketplacebackend.orders.services.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/orders")
@@ -21,56 +27,70 @@ public class OrderController {
     @GetMapping("/getAll")
     public ResponseEntity<Object> getAllOrders() {
         try {
-            return responseHandlerService.generateResponse("Orders fetched successfully", HttpStatus.OK, orderService.getAllOrders());
+            List<OrderDTO> orderList = orderService.getAllOrders();
+            return responseHandlerService.generateResponse("Orders fetched successfully", HttpStatus.OK, orderList);
         } catch (Exception e) {
-            return responseHandlerService.generateResponse("Failed to fetch orders", HttpStatus.INTERNAL_SERVER_ERROR, e);
+            return responseHandlerService.generateResponse("Failed to fetch orders", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getOrderById(@PathVariable Long id) {
         try {
-            LocalOrderDTO orderDTO = orderService.getOrderById(id);
+            OrderDTO orderDTO = orderService.getOrderById(id);
             return responseHandlerService.generateResponse("Order fetched successfully", HttpStatus.OK, orderDTO);
         } catch (Exception e) {
-            return responseHandlerService.generateResponse("Fetching order failed", HttpStatus.INTERNAL_SERVER_ERROR, e);
+            return responseHandlerService.generateResponse("Fetching order failed", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
 
     @PostMapping("/create")
-    public ResponseEntity<Object> createOrderFromOffer(@RequestBody LocalOrderDTO orderDTO) {
+    public ResponseEntity<Object> createOrderFromOffer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @Valid @RequestBody OrderDTO orderDTO) {
         try {
-            // Validation of quantity to check if its not null
-            if (orderDTO.getOrderQuantity() == null) {
-                return responseHandlerService.generateResponse("Quantity is required", HttpStatus.BAD_REQUEST, null);
-            }
-
-            // Check if ids are transfered
-            if (orderDTO.getUserId() == null || orderDTO.getOfferId() == null) {
-                return responseHandlerService.generateResponse("User ID and Offer ID are required", HttpStatus.BAD_REQUEST, null);
-            }
-
-            LocalOrderDTO createdOrder = orderService.createOrderFromOffer(orderDTO.getUserId(), orderDTO.getOfferId(), orderDTO.getOrderQuantity());
-
+            OrderDTO createdOrder = orderService.createOrderFromOffer(authHeader, orderDTO);
             return responseHandlerService.generateResponse("Order created successfully", HttpStatus.CREATED, createdOrder);
+        } catch (SelfPurchaseNotAllowedException e) {
+            return responseHandlerService.generateResponse("Error while creating the order", HttpStatus.CONFLICT, e.getMessage());
         } catch (Exception e) {
-            return responseHandlerService.generateResponse("Failed to create order", HttpStatus.INTERNAL_SERVER_ERROR, e);
+            return responseHandlerService.generateResponse("Failed to create order", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
-
-    @PutMapping("/{id}/accept")
-    public ResponseEntity<Object> acceptOrder(@PathVariable Long id) {
+    @PatchMapping("/{id}/change-price")
+    public ResponseEntity<Object> changeOfferPrice(@PathVariable Long id, @RequestBody Double newPrice) {
         try {
-            orderService.updateOrderStatus(id, OrderStatus.ACCEPTED);
-            return responseHandlerService.generateResponse("Order accepted successfully", HttpStatus.OK, null);
+            orderService.changeOrderPrice(id, newPrice);
+            return responseHandlerService.generateResponse("Counteroffer added successfully", HttpStatus.OK, null);
         } catch (Exception e) {
-            return responseHandlerService.generateResponse("Failed to accept order", HttpStatus.INTERNAL_SERVER_ERROR, e);
+            return responseHandlerService.generateResponse("Failed to add counteroffer", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
-    @PutMapping("/{id}/reject")
+    @PatchMapping("/{id}/change-order-status")
+    public ResponseEntity<Object> updateOrderStatus(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @PathVariable Long id, @RequestParam OrderStatus newStatus) {
+        try {
+            orderService.updateOrderStatus(authHeader, id, newStatus);
+            return responseHandlerService.generateResponse("Counteroffer rejected successfully", HttpStatus.OK, null);
+        } catch (Exception e) {
+            return responseHandlerService.generateResponse("Failed to reject counteroffer", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    @PatchMapping("/{id}/accept")
+    public ResponseEntity<Object> acceptOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @PathVariable Long id) {
+        try {
+            orderService.updateOrderStatus(authHeader, id, OrderStatus.ACCEPTED);
+            return responseHandlerService.generateResponse("Order accepted successfully", HttpStatus.OK, null);
+        } catch (IllegalArgumentException e) {
+            return responseHandlerService.generateResponse("User not valid to perform action", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        } catch (Exception e) {
+            return responseHandlerService.generateResponse("Failed to accept order", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+
+    /*@PutMapping("/{id}/reject")
     public ResponseEntity<Object> rejectOrder(@PathVariable Long id) {
         try {
             orderService.updateOrderStatus(id, OrderStatus.REJECTED);
@@ -78,45 +98,6 @@ public class OrderController {
         } catch (Exception e) {
             return responseHandlerService.generateResponse("Failed to reject order", HttpStatus.INTERNAL_SERVER_ERROR, e);
         }
-    }
+    }*/
 
-    @PutMapping("/{id}/negotiation")
-    public ResponseEntity<Object> negotiateOrder(@PathVariable Long id) {
-        try {
-            orderService.updateOrderStatus(id, OrderStatus.NEGOTIATION);
-            return responseHandlerService.generateResponse("Order in negotiation", HttpStatus.OK, null);
-        } catch (Exception e) {
-            return responseHandlerService.generateResponse("Failed to negotiate", HttpStatus.INTERNAL_SERVER_ERROR, e);
-        }
-    }
-
-    @PutMapping("/{id}/counteroffer")
-    public ResponseEntity<Object> addCounteroffer(@PathVariable Long id, @RequestBody String counteroffer) {
-        try {
-            orderService.addCounteroffer(id, counteroffer);
-            return responseHandlerService.generateResponse("Counteroffer added successfully", HttpStatus.OK, null);
-        } catch (Exception e) {
-            return responseHandlerService.generateResponse("Failed to add counteroffer", HttpStatus.INTERNAL_SERVER_ERROR, e);
-        }
-    }
-
-    @PutMapping("/{id}/accept-counteroffer")
-    public ResponseEntity<Object> acceptCounteroffer(@PathVariable Long id) {
-        try {
-            orderService.updateOrderStatus(id, OrderStatus.ACCEPTED);
-            return responseHandlerService.generateResponse("Counteroffer accepted successfully", HttpStatus.OK, null);
-        } catch (Exception e) {
-            return responseHandlerService.generateResponse("Failed to accept counteroffer", HttpStatus.INTERNAL_SERVER_ERROR, e);
-        }
-    }
-
-    @PutMapping("/{id}/reject-counteroffer")
-    public ResponseEntity<Object> rejectCounteroffer(@PathVariable Long id) {
-        try {
-            orderService.updateOrderStatus(id, OrderStatus.REJECTED);
-            return responseHandlerService.generateResponse("Counteroffer rejected successfully", HttpStatus.OK, null);
-        } catch (Exception e) {
-            return responseHandlerService.generateResponse("Failed to reject counteroffer", HttpStatus.INTERNAL_SERVER_ERROR, e);
-        }
-    }
 }

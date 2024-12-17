@@ -1,6 +1,7 @@
-package com.example.textilemarketplacebackend.db.models;
+package com.example.textilemarketplacebackend.auth.models.user;
 
-import com.example.textilemarketplacebackend.auth.models.user.Role;
+import com.example.textilemarketplacebackend.offers.models.ProductListing;
+import com.example.textilemarketplacebackend.orders.models.Order;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -24,7 +25,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class LocalUser implements UserDetails {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -56,10 +57,13 @@ public class LocalUser implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JsonManagedReference
-    private List<Offer> offers = new ArrayList<>();
+    private List<ProductListing> productListings = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<LocalOrder> orders = new ArrayList<>();
+    @OneToMany(mappedBy = "seller", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Order> selling = new ArrayList<>();
+
+    @OneToMany(mappedBy = "buyer", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Order> buying = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -81,8 +85,9 @@ public class LocalUser implements UserDetails {
                 ", lastName='" + lastName + '\'' +
                 ", nip=" + nip +
                 ", role=" + role +
-                ", offers=" + offers +
-                ", orders=" + orders +
+                ", products=" + productListings +
+                ", buying=" + buying +
+                ", selling=" + selling +
                 '}';
     }
 }

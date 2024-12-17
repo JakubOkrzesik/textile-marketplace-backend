@@ -1,89 +1,150 @@
 package com.example.textilemarketplacebackend.orders.services;
 
-import com.example.textilemarketplacebackend.auth.models.user.UserRepository;
-import com.example.textilemarketplacebackend.db.models.LocalOrder;
-import com.example.textilemarketplacebackend.db.models.Offer;
-import com.example.textilemarketplacebackend.db.models.OrderStatus;
-import com.example.textilemarketplacebackend.db.models.LocalUser;
-import com.example.textilemarketplacebackend.offers.models.OfferRepository;
-import com.example.textilemarketplacebackend.orders.models.LocalOrderDTO;
-import com.example.textilemarketplacebackend.orders.models.OrderRepository;
+import com.example.textilemarketplacebackend.global.services.UserService;
+import com.example.textilemarketplacebackend.mail.models.MailRequest;
+import com.example.textilemarketplacebackend.mail.models.MailRequestType;
+import com.example.textilemarketplacebackend.mail.services.EmailService;
+import com.example.textilemarketplacebackend.orders.models.*;
+import com.example.textilemarketplacebackend.offers.models.ProductListing;
+import com.example.textilemarketplacebackend.auth.models.user.User;
+import com.example.textilemarketplacebackend.offers.models.ListingRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final OfferRepository offerRepository;
-    private final UserRepository userRepository;
-
-    public OrderService(OrderRepository orderRepository, OfferRepository offerRepository, UserRepository userRepository) {
-        this.orderRepository = orderRepository;
-        this.offerRepository = offerRepository;
-        this.userRepository = userRepository;
-    }
+    private final ListingRepository listingRepository;
+    private final UserService userService;
+    private final EmailService emailService;
 
     // Lists all orders and returns them as DTOs
-    public List<LocalOrderDTO> getAllOrders() {
-        List<LocalOrder> orders = orderRepository.findAll();
+    public List<OrderDTO> getAllOrders() {
+        List<Order> orders = orderRepository.findAll();
         return orders.stream()
-                .map(LocalOrderDTO::new)
+                .map(OrderDTO::new)
                 .collect(Collectors.toList());
     }
 
     // Finds specific order by ID
-    public LocalOrderDTO getOrderById(Long id) {
-        LocalOrder order = orderRepository.findById(id)
+    public OrderDTO getOrderById(Long id) {
+        Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No order found with this Id"));
-        return new LocalOrderDTO(order); // Zwracamy DTO zamiast encji
+        return new OrderDTO(order); // Returns DTO instead of Order object
     }
 
 
     // Creates an order from an offer and returns the created order as DTO
-    public LocalOrderDTO createOrderFromOffer(Long userId, Long offerId, Integer quantity) {
-        Offer offer = offerRepository.findById(offerId)
+    @Transactional
+    public OrderDTO createOrderFromOffer(String authHeader, OrderDTO orderDTO) {
+
+        User user = userService.extractUserFromToken(authHeader);
+        int quantity = orderDTO.getOrderQuantity();
+        double price = orderDTO.getNewOrderPrice();
+
+        // Checking if product listing with that id exists
+        ProductListing productListing = listingRepository.findById(orderDTO.getListingId())
                 .orElseThrow(() -> new IllegalArgumentException("Offer not found"));
 
-        if (offer.getQuantity() < quantity) {
+        if (productListing.getUser().getId().equals(user.getId())) {
+            throw new SelfPurchaseNotAllowedException("Seller cannot purchase their own products.");
+        }
+
+        if (productListing.getQuantity() < quantity) {
             throw new IllegalArgumentException("Not enough stock available");
         }
 
-        LocalUser user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        // Storage update
-        offer.setQuantity(offer.getQuantity() - quantity);
-        offerRepository.save(offer);
-
         // Create an order
-        LocalOrder order = new LocalOrder();
-        order.setUser(user);
-        order.setOfferId(offer);
-        order.setOrderQuantity(quantity);
-        order.setOrderStatus(OrderStatus.PENDING);
+        // Setting the buyer and seller so that both parties can modify the price and status of the listing
+        Order order = Order.builder()
+                .buyer(user)
+                .seller(productListing.getUser())
+                .productListing(productListing)
+                .newOrderPrice(price)
+                .orderQuantity(quantity)
+                .orderStatus(OrderStatus.PENDING)
+                .build();
+
 
         // Save and return the order as DTO
-        LocalOrder savedOrder = orderRepository.save(order);
-        return new LocalOrderDTO(savedOrder); // Zwracamy DTO
+        Order savedOrder = orderRepository.save(order);
+
+        // Storage update
+        // Necessary due to the requirement of product stock reservation
+        productListing.setQuantity(productListing.getQuantity() - quantity);
+        listingRepository.save(productListing);
+
+        return new OrderDTO(savedOrder);
     }
 
     //
-    public void updateOrderStatus(Long orderId, OrderStatus status) {
-        LocalOrder order = orderRepository.findById(orderId)
+    public void updateOrderStatus(String authHeader, Long orderId, OrderStatus status) {
+
+        if (status == null) {
+            throw new IllegalArgumentException("Invalid order status type");
+        }
+
+        User user = userService.extractUserFromToken(authHeader);
+        Long userId = user.getId();
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        List<MailRequest> mailRequestList = new ArrayList<>();
+        String buyerEmailBody;
+        String sellerEmailBody;
+
+        switch (status) {
+            case ACCEPTED -> {
+                if (!order.getSeller().getId().equals(userId)) {
+                    throw new IllegalArgumentException("Invalid order status type");
+                }
+                buyerEmailBody = String.format("Congratulations! Your order with the ID: %d has been accepted and is now being processed", order.getId());
+                sellerEmailBody = String.format("Congratulations! Your listing with the ID: %d has been sold", order.getId());
+            }
+            case PENDING, REJECTED, NEGOTIATION -> {
+                if (!order.getSeller().getId().equals(userId) && !order.getBuyer().getId().equals(userId)) {
+                    throw new IllegalArgumentException("Invalid order status type");
+                }
+                buyerEmailBody = String.format("Your order with the ID: %d has changed status to %s", order.getId(), status);
+                sellerEmailBody = String.format("Your listing with the ID: %d has changed status to %s", order.getId(), status);
+            }
+            case null, default -> throw new IllegalArgumentException("Invalid order status type");
+        }
+
+        MailRequest buyerMailRequest = MailRequest.builder()
+                .body(buyerEmailBody)
+                .type(MailRequestType.ACCOUNT_ACTIVATION)
+                .recipients(new String[]{order.getBuyer().getEmail()})
+                .build();
+
+        MailRequest sellerMailRequest = MailRequest.builder()
+                .body(sellerEmailBody)
+                .type(MailRequestType.ACCOUNT_ACTIVATION)
+                .recipients(new String[]{order.getSeller().getEmail()})
+                .build();
+
+
+        mailRequestList.add(buyerMailRequest);
+        mailRequestList.add(sellerMailRequest);
+
         order.setOrderStatus(status);
         orderRepository.save(order);
+        // email service send
+        emailService.sendEmail(mailRequestList);
     }
 
-    public void addCounteroffer(Long orderId, String counteroffer) {
-        LocalOrder order = orderRepository.findById(orderId)
+    public void changeOrderPrice(Long orderId, Double newPrice) {
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found"));
 
-        order.setCounteroffer(counteroffer);
+        order.setNewOrderPrice(newPrice);
         order.setOrderStatus(OrderStatus.NEGOTIATION);
         orderRepository.save(order);
     }

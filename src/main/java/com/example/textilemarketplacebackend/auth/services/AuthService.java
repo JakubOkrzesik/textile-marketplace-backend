@@ -1,9 +1,10 @@
 package com.example.textilemarketplacebackend.auth.services;
 
 import com.example.textilemarketplacebackend.auth.models.requests.*;
+import com.example.textilemarketplacebackend.auth.models.user.NipAlreadyExistsException;
 import com.example.textilemarketplacebackend.auth.models.user.Role;
 import com.example.textilemarketplacebackend.auth.models.user.UserAlreadyExistsException;
-import com.example.textilemarketplacebackend.db.models.LocalUser;
+import com.example.textilemarketplacebackend.auth.models.user.User;
 import com.example.textilemarketplacebackend.global.services.UserService;
 import com.example.textilemarketplacebackend.mail.models.*;
 import com.example.textilemarketplacebackend.mail.services.EmailService;
@@ -28,10 +29,15 @@ public class AuthService {
     private final UserService userService;
 
     public void register(RegisterRequest request) throws UserAlreadyExistsException, InternalMailServiceErrorException {
-        if(userService.findByEmail(request.getEmail()).isPresent()){
+        if (userService.findByEmail(request.getEmail()).isPresent()){
             throw new UserAlreadyExistsException("This email address is already tied to a user");
         }
-        LocalUser user = LocalUser.builder()
+
+        if (userService.findByNip(request.getNip()).isPresent()) {
+            throw new NipAlreadyExistsException("Nip is already tied to a user");
+        }
+
+        User user = User.builder()
                 .username(request.getUsername())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -57,23 +63,23 @@ public class AuthService {
         );
 
         // this enables not searching the db two times
-        LocalUser user = (LocalUser) auth.getPrincipal();
+        User user = (User) auth.getPrincipal();
 
         String jwtToken = jwtService.generateAuthToken(user);
         return TokenResponse.builder().token(jwtToken).build();
     }
 
     // both these methods are meant to validate generated tokens
-    public boolean authenticatePasswordResetToken(String jwt, LocalUser user){
+    public boolean authenticatePasswordResetToken(String jwt, User user){
         return jwtService.isPasswordTokenValid(jwt, user);
     }
 
-    public boolean authenticateAccountActivationToken(String jwt, LocalUser user) {
+    public boolean authenticateAccountActivationToken(String jwt, User user) {
         return jwtService.isAccountActivationTokenValid(jwt, user);
     }
 
     public MailResponseWrapper<List<MailResponse>> sendResetPasswordEmail(ForgetPasswordRequest request) throws InternalMailServiceErrorException {
-        LocalUser user = userService.findByEmail(request.getEmail())
+        User user = userService.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         String resetToken = jwtService.generatePasswordResetToken(user);
@@ -90,7 +96,7 @@ public class AuthService {
         return emailService.sendEmail(mailRequestList);
     }
 
-    public void sendAccountActivationEmail(LocalUser user) {
+    public void sendAccountActivationEmail(User user) {
         MailRequest mailRequest = MailRequest.builder()
                 .url(String.format("%s/account_activation?token=%s", "https://front_url.com", jwtService.generateAccountActivationToken(user)))
                 .type(MailRequestType.ACCOUNT_ACTIVATION)
@@ -104,7 +110,7 @@ public class AuthService {
     }
 
     public void handleSuccessfulPasswordChange(String authHeader, PasswordResetRequest request) {
-        LocalUser user = userService.extractUserFromToken(authHeader);
+        User user = userService.extractUserFromToken(authHeader);
         String jwt = authHeader.substring(7);
 
         if (!authenticatePasswordResetToken(jwt, user)) {
@@ -117,7 +123,7 @@ public class AuthService {
 
     // idiotic code needs reevaluation
     public void handleSuccessfulAccountActivation(String authHeader) {
-        LocalUser user = userService.extractUserFromToken(authHeader);
+        User user = userService.extractUserFromToken(authHeader);
         String jwt = authHeader.substring(7);
 
         if (!authenticateAccountActivationToken(jwt, user)) {
