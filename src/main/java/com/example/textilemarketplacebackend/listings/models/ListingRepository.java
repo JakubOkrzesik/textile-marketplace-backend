@@ -1,4 +1,4 @@
-package com.example.textilemarketplacebackend.offers.models;
+package com.example.textilemarketplacebackend.listings.models;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

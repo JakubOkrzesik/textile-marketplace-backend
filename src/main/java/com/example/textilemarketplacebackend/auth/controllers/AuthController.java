@@ -18,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,7 +31,6 @@ public class AuthController {
 
 
     // endpoint registers user and sends account activation email
-    // TODO further checks for NIP number in the database - email was sent when the same NIP number was entered but account was not created
     @PostMapping("/register")
     public ResponseEntity<Object> register(@Valid @RequestBody RegisterRequest request) {
         try {
@@ -78,8 +78,10 @@ public class AuthController {
         try {
             return responseHandler.generateResponse("An email with a password reset link should arrive in your inbox shortly", HttpStatus.ACCEPTED, authService.sendResetPasswordEmail(request));
         } catch (UsernameNotFoundException e) {
-            return responseHandler.generateResponse("User with this email was not found. Try typing your email again", HttpStatus.NOT_FOUND, null);
+            return responseHandler.generateResponse("User with this email was not found. Try typing your email again", HttpStatus.NOT_FOUND, e.getMessage());
         } catch (InternalMailServiceErrorException e) {
+            return responseHandler.generateResponse("An mail service error occurred while processing your request", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        } catch (Exception e) {
             return responseHandler.generateResponse("An error occurred while processing your request", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
@@ -91,8 +93,11 @@ public class AuthController {
             authService.handleSuccessfulPasswordChange(authHeader, request);
             return responseHandler.generateResponse("Password changed successfully. You may now log in.", HttpStatus.OK, null);
         } catch (UsernameNotFoundException e) {
-            return responseHandler.generateResponse("User with the provided username does not exist", HttpStatus.NOT_FOUND, null);
-        } catch (Exception e) {
+            return responseHandler.generateResponse("User with the provided username does not exist", HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return responseHandler.generateResponse("Password reset token invalid", HttpStatus.NOT_FOUND, e.getMessage());
+        }
+        catch (Exception e) {
             return responseHandler.generateResponse("An internal server error has occurred", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }

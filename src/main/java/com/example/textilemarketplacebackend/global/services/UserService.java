@@ -30,7 +30,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public Optional<User> findByNip(Long nip) {
+    public Optional<User> findByNip(String nip) {
         return userRepository.findByNip(nip);
     }
 }

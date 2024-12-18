@@ -1,14 +1,10 @@
-package com.example.textilemarketplacebackend.offers.models;
+package com.example.textilemarketplacebackend.listings.models;
 
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.Length;
 
 @Data
 @AllArgsConstructor
@@ -20,7 +16,7 @@ public class ListingDTO {
 
     @NotNull(message = "Long description must not be null")
     @NotBlank(message = "Long description must not be blank")
-    @Max(value = 1024, message = "Long description must not be longer than 1024 characters")
+    @Size(max = 1024, message = "Long description must not be longer than 1024 characters")
     private String longDescription;
 
     @NotNull(message = "Price must not be null")

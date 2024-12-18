@@ -1,10 +1,13 @@
 package com.example.textilemarketplacebackend.auth.services;
 
 import com.example.textilemarketplacebackend.auth.models.TokenType;
+import com.example.textilemarketplacebackend.global.services.EnvService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +18,16 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
-    private static final String SECRET_KEY = "34b8f23b1e65c2cffd3d50c75050a09c3434e52242837700f2fc7f2bac635e59b41b2460b19e23670448dfaf8ff0ae8b96d762db5b76d0e2c78663d0b61890b3";
+    private final EnvService envService;
+    private String SECRET_KEY;
+
+    @PostConstruct
+    private void initializeSecretKey() {
+        SECRET_KEY = envService.getJWT_SECRET();
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);

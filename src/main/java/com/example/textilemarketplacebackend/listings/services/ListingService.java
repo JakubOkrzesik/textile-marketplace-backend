@@ -1,13 +1,13 @@
-package com.example.textilemarketplacebackend.offers.services;
+package com.example.textilemarketplacebackend.listings.services;
 
 import com.example.textilemarketplacebackend.auth.models.user.User;
 import com.example.textilemarketplacebackend.mail.models.MailRequest;
 import com.example.textilemarketplacebackend.mail.models.MailRequestType;
 import com.example.textilemarketplacebackend.mail.services.EmailService;
-import com.example.textilemarketplacebackend.offers.models.ProductListing;
+import com.example.textilemarketplacebackend.listings.models.ProductListing;
 import com.example.textilemarketplacebackend.global.services.UserService;
-import com.example.textilemarketplacebackend.offers.models.ListingDTO;
-import com.example.textilemarketplacebackend.offers.models.ListingRepository;
+import com.example.textilemarketplacebackend.listings.models.ListingDTO;
+import com.example.textilemarketplacebackend.listings.models.ListingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

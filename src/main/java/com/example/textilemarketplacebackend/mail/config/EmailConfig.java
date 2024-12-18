@@ -1,9 +1,11 @@
 package com.example.textilemarketplacebackend.mail.config;
 
+import com.example.textilemarketplacebackend.global.services.EnvService;
 import com.example.textilemarketplacebackend.mail.models.InvalidMailRequestException;
 import com.example.textilemarketplacebackend.mail.models.MailResponseWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ParameterizedTypeReference;
@@ -15,18 +17,16 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 @Configuration
+@RequiredArgsConstructor
 public class EmailConfig {
 
-    private final ObjectMapper objectMapper;
-
-    public EmailConfig() {
-        this.objectMapper = new ObjectMapper();
-    }
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final EnvService envService;
 
     @Bean
     public RestClient restClient() throws InvalidMailRequestException {
         return RestClient.builder()
-                .baseUrl("https://99zlpwtjoa.execute-api.eu-central-1.amazonaws.com/test/email/send")
+                .baseUrl(envService.getEMAIL_SERVICE_URL())
                 .defaultStatusHandler(HttpStatusCode::is4xxClientError, (request, response) -> {
                     handleErrorResponse(response);
                 })

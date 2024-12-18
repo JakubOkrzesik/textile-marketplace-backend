@@ -1,9 +1,9 @@
-package com.example.textilemarketplacebackend.offers.controllers;
+package com.example.textilemarketplacebackend.listings.controllers;
 
 import com.example.textilemarketplacebackend.global.services.ResponseHandlerService;
 
-import com.example.textilemarketplacebackend.offers.models.ListingDTO;
-import com.example.textilemarketplacebackend.offers.services.ListingService;
+import com.example.textilemarketplacebackend.listings.models.ListingDTO;
+import com.example.textilemarketplacebackend.listings.services.ListingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;

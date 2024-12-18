@@ -1,7 +1,7 @@
 package com.example.textilemarketplacebackend.orders.models;
 
 import com.example.textilemarketplacebackend.auth.models.user.User;
-import com.example.textilemarketplacebackend.offers.models.ProductListing;
+import com.example.textilemarketplacebackend.listings.models.ProductListing;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;

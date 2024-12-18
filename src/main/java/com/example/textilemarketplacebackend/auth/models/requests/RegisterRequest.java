@@ -34,6 +34,6 @@ public class RegisterRequest {
 
     @NotNull(message = "NIP cannot be null")
     @NotBlank(message = "NIP cannot be blank")
-    @Length(min = 9, max = 9, message = "NIP needs to be exactly 9 characters long")
-    private Long nip;
+    @Length(min = 10, max = 10, message = "NIP needs to be exactly 10 characters long")
+    private String nip;
 }

@@ -1,6 +1,6 @@
 package com.example.textilemarketplacebackend.auth.models.user;
 
-import com.example.textilemarketplacebackend.offers.models.ProductListing;
+import com.example.textilemarketplacebackend.listings.models.ProductListing;
 import com.example.textilemarketplacebackend.orders.models.Order;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -46,8 +46,8 @@ public class User implements UserDetails {
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "nip", nullable = false, unique = true)
-    private Long nip;
+    @Column(name = "nip", nullable = false, unique = true, length = 10)
+    private String nip;
 
     @Column(name = "role", nullable = false)
     private Role role;

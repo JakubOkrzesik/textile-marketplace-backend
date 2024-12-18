@@ -5,9 +5,9 @@ import com.example.textilemarketplacebackend.mail.models.MailRequest;
 import com.example.textilemarketplacebackend.mail.models.MailRequestType;
 import com.example.textilemarketplacebackend.mail.services.EmailService;
 import com.example.textilemarketplacebackend.orders.models.*;
-import com.example.textilemarketplacebackend.offers.models.ProductListing;
+import com.example.textilemarketplacebackend.listings.models.ProductListing;
 import com.example.textilemarketplacebackend.auth.models.user.User;
-import com.example.textilemarketplacebackend.offers.models.ListingRepository;
+import com.example.textilemarketplacebackend.listings.models.ListingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,9 +50,11 @@ public class OrderService {
         int quantity = orderDTO.getOrderQuantity();
         double price = orderDTO.getNewOrderPrice();
 
+        List<MailRequest> mailRequestList = new ArrayList<>();
+
         // Checking if product listing with that id exists
         ProductListing productListing = listingRepository.findById(orderDTO.getListingId())
-                .orElseThrow(() -> new IllegalArgumentException("Offer not found"));
+                .orElseThrow(() -> new NoSuchElementException("Offer not found"));
 
         if (productListing.getUser().getId().equals(user.getId())) {
             throw new SelfPurchaseNotAllowedException("Seller cannot purchase their own products.");
@@ -73,16 +75,28 @@ public class OrderService {
                 .orderStatus(OrderStatus.PENDING)
                 .build();
 
+        OrderDTO orderDto = new OrderDTO(order);
+
 
         // Save and return the order as DTO
-        Order savedOrder = orderRepository.save(order);
+        orderRepository.save(order);
 
         // Storage update
         // Necessary due to the requirement of product stock reservation
         productListing.setQuantity(productListing.getQuantity() - quantity);
         listingRepository.save(productListing);
 
-        return new OrderDTO(savedOrder);
+        MailRequest orderMailRequest = MailRequest.builder()
+                .body(String.format("You have created a new order for the product named: %s", productListing.getProductName()))
+                .type(MailRequestType.NOTIFICATION)
+                .recipients(new String[]{order.getBuyer().getEmail()})
+                .build();
+
+        mailRequestList.add(orderMailRequest);
+
+        emailService.sendEmail(mailRequestList);
+
+        return orderDto;
     }
 
     //
@@ -95,7 +109,7 @@ public class OrderService {
         User user = userService.extractUserFromToken(authHeader);
         Long userId = user.getId();
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+                .orElseThrow(() -> new NoSuchElementException("Order not found"));
         List<MailRequest> mailRequestList = new ArrayList<>();
         String buyerEmailBody;
         String sellerEmailBody;
@@ -103,30 +117,30 @@ public class OrderService {
         switch (status) {
             case ACCEPTED -> {
                 if (!order.getSeller().getId().equals(userId)) {
-                    throw new IllegalArgumentException("Invalid order status type");
+                    throw new InvalidOrderStatusException("You cannot accept the offer not being the seller");
                 }
                 buyerEmailBody = String.format("Congratulations! Your order with the ID: %d has been accepted and is now being processed", order.getId());
                 sellerEmailBody = String.format("Congratulations! Your listing with the ID: %d has been sold", order.getId());
             }
             case PENDING, REJECTED, NEGOTIATION -> {
                 if (!order.getSeller().getId().equals(userId) && !order.getBuyer().getId().equals(userId)) {
-                    throw new IllegalArgumentException("Invalid order status type");
+                    throw new InvalidOrderStatusException("Invalid order status type");
                 }
                 buyerEmailBody = String.format("Your order with the ID: %d has changed status to %s", order.getId(), status);
                 sellerEmailBody = String.format("Your listing with the ID: %d has changed status to %s", order.getId(), status);
             }
-            case null, default -> throw new IllegalArgumentException("Invalid order status type");
+            case null, default -> throw new InvalidOrderStatusException("Invalid order status type");
         }
 
         MailRequest buyerMailRequest = MailRequest.builder()
                 .body(buyerEmailBody)
-                .type(MailRequestType.ACCOUNT_ACTIVATION)
+                .type(MailRequestType.NOTIFICATION)
                 .recipients(new String[]{order.getBuyer().getEmail()})
                 .build();
 
         MailRequest sellerMailRequest = MailRequest.builder()
                 .body(sellerEmailBody)
-                .type(MailRequestType.ACCOUNT_ACTIVATION)
+                .type(MailRequestType.NOTIFICATION)
                 .recipients(new String[]{order.getSeller().getEmail()})
                 .build();
 
@@ -142,7 +156,7 @@ public class OrderService {
 
     public void changeOrderPrice(Long orderId, Double newPrice) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+                .orElseThrow(() -> new NoSuchElementException("Order not found"));
 
         order.setNewOrderPrice(newPrice);
         order.setOrderStatus(OrderStatus.NEGOTIATION);

@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/v1/orders")
@@ -29,6 +30,8 @@ public class OrderController {
         try {
             List<OrderDTO> orderList = orderService.getAllOrders();
             return responseHandlerService.generateResponse("Orders fetched successfully", HttpStatus.OK, orderList);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return responseHandlerService.generateResponse("Error while mapping orders", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         } catch (Exception e) {
             return responseHandlerService.generateResponse("Failed to fetch orders", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
@@ -39,6 +42,8 @@ public class OrderController {
         try {
             OrderDTO orderDTO = orderService.getOrderById(id);
             return responseHandlerService.generateResponse("Order fetched successfully", HttpStatus.OK, orderDTO);
+        } catch (NoSuchElementException e) {
+            return responseHandlerService.generateResponse("Order with the provided id was not found", HttpStatus.NOT_FOUND, e.getMessage());
         } catch (Exception e) {
             return responseHandlerService.generateResponse("Fetching order failed", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
@@ -58,10 +63,12 @@ public class OrderController {
     }
 
     @PatchMapping("/{id}/change-price")
-    public ResponseEntity<Object> changeOfferPrice(@PathVariable Long id, @RequestBody Double newPrice) {
+    public ResponseEntity<Object> changeOrderPrice(@PathVariable Long id, @RequestBody Double newPrice) {
         try {
             orderService.changeOrderPrice(id, newPrice);
-            return responseHandlerService.generateResponse("Counteroffer added successfully", HttpStatus.OK, null);
+            return responseHandlerService.generateResponse("Order price changed successfully", HttpStatus.OK, null);
+        } catch (NoSuchElementException e) {
+            return responseHandlerService.generateResponse("Order with the provided id was not found", HttpStatus.NOT_FOUND, e.getMessage());
         } catch (Exception e) {
             return responseHandlerService.generateResponse("Failed to add counteroffer", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
@@ -71,7 +78,9 @@ public class OrderController {
     public ResponseEntity<Object> updateOrderStatus(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @PathVariable Long id, @RequestParam OrderStatus newStatus) {
         try {
             orderService.updateOrderStatus(authHeader, id, newStatus);
-            return responseHandlerService.generateResponse("Counteroffer rejected successfully", HttpStatus.OK, null);
+            return responseHandlerService.generateResponse("Order status changed successfully.", HttpStatus.OK, null);
+        } catch (NoSuchElementException e) {
+            return responseHandlerService.generateResponse("Order with the provided id was not found", HttpStatus.NOT_FOUND, e.getMessage());
         } catch (Exception e) {
             return responseHandlerService.generateResponse("Failed to reject counteroffer", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
@@ -82,6 +91,8 @@ public class OrderController {
         try {
             orderService.updateOrderStatus(authHeader, id, OrderStatus.ACCEPTED);
             return responseHandlerService.generateResponse("Order accepted successfully", HttpStatus.OK, null);
+        } catch (NoSuchElementException e) {
+            return responseHandlerService.generateResponse("Order with the provided id was not found", HttpStatus.NOT_FOUND, e.getMessage());
         } catch (IllegalArgumentException e) {
             return responseHandlerService.generateResponse("User not valid to perform action", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         } catch (Exception e) {

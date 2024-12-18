@@ -1,4 +1,4 @@
-package com.example.textilemarketplacebackend.offers.models;
+package com.example.textilemarketplacebackend.listings.models;
 
 import com.example.textilemarketplacebackend.orders.models.Order;
 import com.example.textilemarketplacebackend.auth.models.user.User;
