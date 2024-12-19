@@ -52,7 +52,7 @@ public class User implements UserDetails {
     @Column(name = "role", nullable = false)
     private Role role;
 
-    @Column(name = "isActivated", nullable = false)
+    @Column(name = "is_activated", nullable = false)
     private boolean isActivated;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
@@ -60,10 +60,10 @@ public class User implements UserDetails {
     private List<ProductListing> productListings = new ArrayList<>();
 
     @OneToMany(mappedBy = "seller", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<Order> selling = new ArrayList<>();
+    private List<Order> ordersAsSeller = new ArrayList<>();
 
     @OneToMany(mappedBy = "buyer", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<Order> buying = new ArrayList<>();
+    private List<Order> ordersAsBuyer = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -86,8 +86,8 @@ public class User implements UserDetails {
                 ", nip=" + nip +
                 ", role=" + role +
                 ", products=" + productListings +
-                ", buying=" + buying +
-                ", selling=" + selling +
+                ", buying=" + ordersAsSeller +
+                ", selling=" + ordersAsBuyer +
                 '}';
     }
 }

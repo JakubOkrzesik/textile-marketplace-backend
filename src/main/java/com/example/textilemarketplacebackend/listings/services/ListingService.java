@@ -9,6 +9,7 @@ import com.example.textilemarketplacebackend.global.services.UserService;
 import com.example.textilemarketplacebackend.listings.models.ListingDTO;
 import com.example.textilemarketplacebackend.listings.models.ListingRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,18 +24,19 @@ public class ListingService {
     private final ListingRepository listingRepository;
     private final UserService userService;
     private final EmailService emailService;
+    private final ModelMapper modelMapper;
 
     public List<ListingDTO> getOffers() {
         return listingRepository.findAll()
                 .stream()
-                .map(ListingDTO::new) // Mapowanie encji Offer na DTO
+                .map(listing -> modelMapper.map(listing, ListingDTO.class))
                 .collect(Collectors.toList());
     }
 
     public ListingDTO getOfferById(Long id) {
         ProductListing productListing = listingRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No offer found with this Id"));
-        return new ListingDTO(productListing); // Zwracamy DTO zamiast encji
+        return modelMapper.map(productListing, ListingDTO.class); // Zwracamy DTO zamiast encji
     }
 
     public void postOffer(String authHeader, ListingDTO listingDTO) {
@@ -69,6 +71,8 @@ public class ListingService {
         ProductListing existingProductListing = listingRepository.findById(id)
                 .filter(offer -> offer.getUser().getId().equals(user.getId()))
                 .orElseThrow(() -> new NoSuchElementException("Offer not found or user is not authorized"));
+
+        // TODO maybe use model mapper
 
         // Update using DTO
         existingProductListing.setProductName(listingDTO.getProductName());

@@ -25,13 +25,4 @@ public class OrderDTO {
     private Double newOrderPrice;
 
     private OrderStatus orderStatus;
-
-    public OrderDTO(Order order) {
-        this.id = order.getId();
-        this.orderQuantity = order.getOrderQuantity();
-        this.listingId = order.getProductListingId();
-        this.newOrderPrice = order.getNewOrderPrice();
-        this.orderStatus = order.getOrderStatus();
-    }
-
 }

@@ -9,6 +9,7 @@ import com.example.textilemarketplacebackend.listings.models.ProductListing;
 import com.example.textilemarketplacebackend.auth.models.user.User;
 import com.example.textilemarketplacebackend.listings.models.ListingRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,12 +26,13 @@ public class OrderService {
     private final ListingRepository listingRepository;
     private final UserService userService;
     private final EmailService emailService;
+    private final ModelMapper modelMapper;
 
     // Lists all orders and returns them as DTOs
     public List<OrderDTO> getAllOrders() {
         List<Order> orders = orderRepository.findAll();
         return orders.stream()
-                .map(OrderDTO::new)
+                .map(order -> modelMapper.map(order, OrderDTO.class))
                 .collect(Collectors.toList());
     }
 
@@ -38,7 +40,7 @@ public class OrderService {
     public OrderDTO getOrderById(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No order found with this Id"));
-        return new OrderDTO(order); // Returns DTO instead of Order object
+        return modelMapper.map(order, OrderDTO.class); // Returns DTO instead of Order object
     }
 
 
@@ -75,7 +77,7 @@ public class OrderService {
                 .orderStatus(OrderStatus.PENDING)
                 .build();
 
-        OrderDTO orderDto = new OrderDTO(order);
+        OrderDTO orderDto = modelMapper.map(order, OrderDTO.class);
 
 
         // Save and return the order as DTO

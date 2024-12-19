@@ -26,13 +26,4 @@ public class ListingDTO {
     @NotNull(message = "Price must not be null")
     @Min(value = 1, message = "Quantity must be greater than one")
     private Integer quantity;
-
-    public ListingDTO(ProductListing productListing) {
-        this.id = productListing.getId();
-        this.productName = productListing.getProductName();
-        this.shortDescription = productListing.getShortDescription();
-        this.longDescription = productListing.getLongDescription();
-        this.price = productListing.getPrice();
-        this.quantity = productListing.getQuantity();
-    }
 }

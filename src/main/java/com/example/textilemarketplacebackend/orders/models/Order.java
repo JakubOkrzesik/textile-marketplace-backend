@@ -45,8 +45,4 @@ public class Order {
     @Column(name = "order_status", nullable = false)
     private OrderStatus orderStatus;
 
-    public Long getProductListingId() {
-        return productListing.getId(); // Returns ID to Offer
-    }
-
 }
