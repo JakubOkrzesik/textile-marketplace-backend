@@ -104,11 +104,11 @@ public class AuthService {
 
         boolean isValidToken = switch (tokenType) {
             case PASSWORD_RESET -> jwtService.isPasswordTokenValid(jwt, user);
-            case ACCOUNT_ACTIVATION -> jwtService.isAccountActivationTokenValid(jwt, user);
+            case ACCOUNT_ACTIVATION -> jwtService.isAccountActivationTokenValid(jwt, user) && !user.isActivated();
             case AUTH -> throw new MismatchedTokenTypeException("A password reset or account activation token is required");
         };
 
-        if (!isValidToken || user.isActivated()) {
+        if (!isValidToken) {
             throw new IllegalArgumentException("Invalid or expired " + tokenType.name().toLowerCase().replace("_", " ") + " token");
         }
 
@@ -134,8 +134,8 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid authorization header");
         }
 
+        User user = userService.extractUserFromToken(authHeader);
         String jwt = authHeader.substring(7);
-        User user = userService.extractUserFromToken(jwt);
 
         boolean isValidToken = jwtService.isPasswordTokenValid(jwt, user);
 
