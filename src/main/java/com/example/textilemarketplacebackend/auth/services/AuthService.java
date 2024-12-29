@@ -1,10 +1,9 @@
 package com.example.textilemarketplacebackend.auth.services;
 
+import com.example.textilemarketplacebackend.auth.models.TokenType;
 import com.example.textilemarketplacebackend.auth.models.requests.*;
-import com.example.textilemarketplacebackend.auth.models.user.NipAlreadyExistsException;
-import com.example.textilemarketplacebackend.auth.models.user.Role;
-import com.example.textilemarketplacebackend.auth.models.user.UserAlreadyExistsException;
-import com.example.textilemarketplacebackend.auth.models.user.User;
+import com.example.textilemarketplacebackend.auth.models.user.*;
+import com.example.textilemarketplacebackend.global.services.EnvService;
 import com.example.textilemarketplacebackend.global.services.UserService;
 import com.example.textilemarketplacebackend.mail.models.*;
 import com.example.textilemarketplacebackend.mail.services.EmailService;
@@ -27,6 +26,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
     private final UserService userService;
+    private final EnvService envService;
 
     public void register(RegisterRequest request) throws UserAlreadyExistsException, InternalMailServiceErrorException {
         if (userService.findByEmail(request.getEmail()).isPresent()){
@@ -69,15 +69,6 @@ public class AuthService {
         return TokenResponse.builder().token(jwtToken).build();
     }
 
-    // both these methods are meant to validate generated tokens
-    public boolean authenticatePasswordResetToken(String jwt, User user){
-        return jwtService.isPasswordTokenValid(jwt, user);
-    }
-
-    public boolean authenticateAccountActivationToken(String jwt, User user) {
-        return jwtService.isAccountActivationTokenValid(jwt, user);
-    }
-
     public MailResponseWrapper<List<MailResponse>> sendResetPasswordEmail(ForgetPasswordRequest request) throws InternalMailServiceErrorException {
         User user = userService.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -85,52 +76,71 @@ public class AuthService {
         String resetToken = jwtService.generatePasswordResetToken(user);
 
         MailRequest mailRequest = MailRequest.builder()
-                .url(String.format("%s/password_reset?token=%s", "front_url", resetToken))
+                .url(String.format("%s/password-reset?token=%s", envService.getFRONTEND_SERVICE_URL(), resetToken))
                 .type(MailRequestType.PASSWORD_RESET)
                 .recipients(new String[]{request.getEmail()})
                 .build();
 
-        List<MailRequest> mailRequestList = new ArrayList<>();
-        mailRequestList.add(mailRequest);
-
-        return emailService.sendEmail(mailRequestList);
+        return emailService.sendEmail(List.of(mailRequest));
     }
 
     public void sendAccountActivationEmail(User user) {
         MailRequest mailRequest = MailRequest.builder()
-                .url(String.format("%s/account_activation?token=%s", "https://front_url.com", jwtService.generateAccountActivationToken(user)))
+                .url(String.format("%s/account-activation?token=%s", envService.getFRONTEND_SERVICE_URL(), jwtService.generateAccountActivationToken(user)))
                 .type(MailRequestType.ACCOUNT_ACTIVATION)
                 .recipients(new String[]{user.getEmail()})
                 .build();
 
-        List<MailRequest> mailRequestList = new ArrayList<>();
-        mailRequestList.add(mailRequest);
-
-        emailService.sendEmail(mailRequestList);
+        emailService.sendEmail(List.of(mailRequest));
     }
 
-    public void handleSuccessfulPasswordChange(String authHeader, PasswordResetRequest request) {
+    private User validateTokenAndGetUser(String authHeader, TokenType tokenType) {
+        if (authHeader == null) {
+            throw new IllegalArgumentException("Invalid authorization header");
+        }
+
         User user = userService.extractUserFromToken(authHeader);
         String jwt = authHeader.substring(7);
 
-        if (!authenticatePasswordResetToken(jwt, user)) {
-            throw new IllegalArgumentException("Invalid or expired password reset token");
+        boolean isValidToken = switch (tokenType) {
+            case PASSWORD_RESET -> jwtService.isPasswordTokenValid(jwt, user);
+            case ACCOUNT_ACTIVATION -> jwtService.isAccountActivationTokenValid(jwt, user);
+            case AUTH -> throw new MismatchedTokenTypeException("A password reset or account activation token is required");
+        };
+
+        if (!isValidToken || user.isActivated()) {
+            throw new IllegalArgumentException("Invalid or expired " + tokenType.name().toLowerCase().replace("_", " ") + " token");
         }
+
+        return user;
+    }
+
+    public void handleSuccessfulPasswordChange(String authHeader, PasswordResetRequest request) {
+        User user = validateTokenAndGetUser(authHeader, TokenType.PASSWORD_RESET);
 
         user.setPassword(passwordEncoder.encode(request.getNew_password()));
         userService.save(user);
     }
 
-    // idiotic code needs reevaluation
     public void handleSuccessfulAccountActivation(String authHeader) {
-        User user = userService.extractUserFromToken(authHeader);
-        String jwt = authHeader.substring(7);
-
-        if (!authenticateAccountActivationToken(jwt, user)) {
-            throw new IllegalArgumentException("Invalid or expired account activation token");
-        };
+        User user = validateTokenAndGetUser(authHeader, TokenType.ACCOUNT_ACTIVATION);
 
         user.setActivated(true);
         userService.save(user);
+    }
+
+    public void validatePasswordResetToken(String authHeader) {
+        if (authHeader == null) {
+            throw new IllegalArgumentException("Invalid authorization header");
+        }
+
+        String jwt = authHeader.substring(7);
+        User user = userService.extractUserFromToken(jwt);
+
+        boolean isValidToken = jwtService.isPasswordTokenValid(jwt, user);
+
+        if (!isValidToken) {
+            throw new IllegalArgumentException("Password token expired or invalid");
+        }
     }
 }

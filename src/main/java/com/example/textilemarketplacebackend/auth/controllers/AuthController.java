@@ -86,6 +86,18 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/validate-password-token")
+    public ResponseEntity<Object> validatePasswordToken(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+        try {
+            authService.validatePasswordResetToken(authHeader);
+            return responseHandler.generateResponse("Password has been validated.", HttpStatus.OK, null);
+        } catch (IllegalArgumentException e) {
+            return responseHandler.generateResponse("Invalid token inside request.", HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (Exception e) {
+            return responseHandler.generateResponse("An error occurred while processing your request", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
     // endpoint validates user password reset
     @PostMapping("/reset_password")
     public ResponseEntity<Object> resetPassword(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @RequestBody PasswordResetRequest request) {
@@ -96,8 +108,7 @@ public class AuthController {
             return responseHandler.generateResponse("User with the provided username does not exist", HttpStatus.NOT_FOUND, e.getMessage());
         } catch (IllegalArgumentException e) {
             return responseHandler.generateResponse("Password reset token invalid", HttpStatus.NOT_FOUND, e.getMessage());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return responseHandler.generateResponse("An internal server error has occurred", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
