@@ -1,13 +1,15 @@
 package com.example.textilemarketplacebackend.listings.services;
 
 import com.example.textilemarketplacebackend.auth.models.user.User;
+import com.example.textilemarketplacebackend.listings.models.*;
+import com.example.textilemarketplacebackend.listings.models.productEnums.FabricComposition;
+import com.example.textilemarketplacebackend.listings.models.productEnums.FabricSafetyRequirements;
+import com.example.textilemarketplacebackend.listings.models.productEnums.FabricTechnology;
+import com.example.textilemarketplacebackend.listings.models.productEnums.FabricType;
 import com.example.textilemarketplacebackend.mail.models.MailRequest;
 import com.example.textilemarketplacebackend.mail.models.MailRequestType;
 import com.example.textilemarketplacebackend.mail.services.EmailService;
-import com.example.textilemarketplacebackend.listings.models.ProductListing;
 import com.example.textilemarketplacebackend.global.services.UserService;
-import com.example.textilemarketplacebackend.listings.models.ListingDTO;
-import com.example.textilemarketplacebackend.listings.models.ListingRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -45,8 +47,7 @@ public class ListingService {
 
         ProductListing productListing = ProductListing.builder()
                 .productName(listingDTO.getProductName())
-                .shortDescription(listingDTO.getShortDescription())
-                .longDescription(listingDTO.getLongDescription())
+                .description(listingDTO.getDescription())
                 .price(listingDTO.getPrice())
                 .quantity(listingDTO.getQuantity())
                 .user(user)
@@ -76,8 +77,7 @@ public class ListingService {
 
         // Update using DTO
         existingProductListing.setProductName(listingDTO.getProductName());
-        existingProductListing.setShortDescription(listingDTO.getShortDescription());
-        existingProductListing.setLongDescription(listingDTO.getLongDescription());
+        existingProductListing.setDescription(listingDTO.getDescription());
         existingProductListing.setPrice(listingDTO.getPrice());
         existingProductListing.setQuantity(listingDTO.getQuantity());
 
@@ -101,6 +101,15 @@ public class ListingService {
 
         listingRepository.delete(existingProductListing);
         emailService.sendEmail(mailRequestList);
+    }
+
+    public ListingEnumDTO getListingEnums() {
+        return ListingEnumDTO.builder()
+                .fabricTypes(FabricType.values())
+                .compositions(FabricComposition.values())
+                .technologies(FabricTechnology.values())
+                .safetyRequirements(FabricSafetyRequirements.values())
+                .build();
     }
 
 }

@@ -13,10 +13,10 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class EmailService {
-    private final RestClient restClient;
+    private final RestClient emailRestClient;
 
     public MailResponseWrapper<List<MailResponse>> sendEmail(List<MailRequest> mailRequestList) throws InvalidMailRequestException, InternalMailServiceErrorException {
-        MailResponseWrapper<List<MailResponse>> response = restClient.post()
+        MailResponseWrapper<List<MailResponse>> response = emailRestClient.post()
                 .body(mailRequestList)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)

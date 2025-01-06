@@ -79,4 +79,13 @@ public class ListingController {
         }
     }
 
+    @GetMapping("/get-listing-enums")
+    public ResponseEntity<Object> getListingEnums() {
+        try {
+            return responseHandlerService.generateResponse("Listing enums fetched", HttpStatus.OK, listingService.getListingEnums());
+        } catch (Exception e) {
+            return responseHandlerService.generateResponse("An error occurred while fetching listing enums", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
 }

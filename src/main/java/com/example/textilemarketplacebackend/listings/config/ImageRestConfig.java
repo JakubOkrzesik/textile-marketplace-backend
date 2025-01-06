@@ -1,6 +1,8 @@
-package com.example.textilemarketplacebackend.mail.config;
+package com.example.textilemarketplacebackend.listings.config;
 
 import com.example.textilemarketplacebackend.global.services.EnvService;
+import com.example.textilemarketplacebackend.listings.models.ImageServiceResponse;
+import com.example.textilemarketplacebackend.listings.models.InvalidImageRequestException;
 import com.example.textilemarketplacebackend.mail.models.InvalidMailRequestException;
 import com.example.textilemarketplacebackend.mail.models.MailResponseWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -17,13 +19,13 @@ import java.nio.charset.StandardCharsets;
 
 @Configuration
 @RequiredArgsConstructor
-public class EmailConfig {
+public class ImageRestConfig {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final EnvService envService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Bean
-    public RestClient emailRestClient() throws InvalidMailRequestException {
+    public RestClient imageRestClient() {
         return RestClient.builder()
                 .baseUrl(envService.getEMAIL_SERVICE_URL())
                 .defaultStatusHandler(HttpStatusCode::is4xxClientError, (request, response) -> {
@@ -35,11 +37,11 @@ public class EmailConfig {
                 .build();
     }
 
-    private void handleErrorResponse(ClientHttpResponse response) throws InvalidMailRequestException {
+    private void handleErrorResponse(ClientHttpResponse response) throws InvalidImageRequestException {
         try {
             String responseBody = new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
-            MailResponseWrapper<String> errorResponse = objectMapper.readValue(responseBody, new TypeReference<>() {});
-            throw new InvalidMailRequestException(errorResponse.getData());
+            ImageServiceResponse errorResponse = objectMapper.readValue(responseBody, ImageServiceResponse.class);
+            throw new InvalidMailRequestException(errorResponse.getBody());
         } catch (IOException e) {
             throw new InvalidMailRequestException("Error reading response body: " + e.getMessage());
         }
