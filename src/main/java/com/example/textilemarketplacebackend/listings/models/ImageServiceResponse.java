@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ImageServiceResponse {
     private String body;
-    private String status;
+    private String statusCode;
 }

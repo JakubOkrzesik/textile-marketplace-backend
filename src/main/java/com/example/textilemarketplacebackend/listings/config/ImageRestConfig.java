@@ -4,8 +4,6 @@ import com.example.textilemarketplacebackend.global.services.EnvService;
 import com.example.textilemarketplacebackend.listings.models.ImageServiceResponse;
 import com.example.textilemarketplacebackend.listings.models.InvalidImageRequestException;
 import com.example.textilemarketplacebackend.mail.models.InvalidMailRequestException;
-import com.example.textilemarketplacebackend.mail.models.MailResponseWrapper;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +25,7 @@ public class ImageRestConfig {
     @Bean
     public RestClient imageRestClient() {
         return RestClient.builder()
-                .baseUrl(envService.getEMAIL_SERVICE_URL())
+                .baseUrl(envService.getIMAGE_SERVICE_URL())
                 .defaultStatusHandler(HttpStatusCode::is4xxClientError, (request, response) -> {
                     handleErrorResponse(response);
                 })
