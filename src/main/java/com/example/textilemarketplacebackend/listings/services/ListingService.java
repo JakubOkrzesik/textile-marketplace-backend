@@ -47,9 +47,17 @@ public class ListingService {
 
         ProductListing productListing = ProductListing.builder()
                 .productName(listingDTO.getProductName())
-                .description(listingDTO.getDescription())
+                .shortDescription(listingDTO.getShortDescription())
+                .longDescription(listingDTO.getLongDescription())
                 .price(listingDTO.getPrice())
                 .quantity(listingDTO.getQuantity())
+                .images(listingDTO.getImages())
+                .fabricType(listingDTO.getFabricType())
+                .composition(listingDTO.getComposition())
+                .technologies(listingDTO.getTechnologies())
+                .safetyRequirements(listingDTO.getSafetyRequirements())
+                .colour(listingDTO.getColour())
+                .width(listingDTO.getWidth())
                 .user(user)
                 .build();
 
@@ -65,21 +73,24 @@ public class ListingService {
     }
 
     public void editOffer(String authHeader, Long id, ListingDTO listingDTO) {
-
         User user = userService.extractUserFromToken(authHeader);
 
-        // Download existing offer from DB if the user id matches
         ProductListing existingProductListing = listingRepository.findById(id)
                 .filter(offer -> offer.getUser().getId().equals(user.getId()))
                 .orElseThrow(() -> new NoSuchElementException("Offer not found or user is not authorized"));
 
-        // TODO maybe use model mapper
-
-        // Update using DTO
         existingProductListing.setProductName(listingDTO.getProductName());
-        existingProductListing.setDescription(listingDTO.getDescription());
+        existingProductListing.setShortDescription(listingDTO.getShortDescription());
+        existingProductListing.setLongDescription(listingDTO.getLongDescription());
         existingProductListing.setPrice(listingDTO.getPrice());
         existingProductListing.setQuantity(listingDTO.getQuantity());
+        existingProductListing.setImages(listingDTO.getImages());
+        existingProductListing.setFabricType(listingDTO.getFabricType());
+        existingProductListing.setComposition(listingDTO.getComposition());
+        existingProductListing.setTechnologies(listingDTO.getTechnologies());
+        existingProductListing.setSafetyRequirements(listingDTO.getSafetyRequirements());
+        existingProductListing.setColour(listingDTO.getColour());
+        existingProductListing.setWidth(listingDTO.getWidth());
 
         listingRepository.save(existingProductListing);
     }
@@ -111,5 +122,4 @@ public class ListingService {
                 .safetyRequirements(FabricSafetyRequirements.values())
                 .build();
     }
-
 }

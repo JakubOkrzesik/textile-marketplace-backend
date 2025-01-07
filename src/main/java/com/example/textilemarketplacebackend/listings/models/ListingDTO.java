@@ -1,6 +1,5 @@
 package com.example.textilemarketplacebackend.listings.models;
 
-
 import com.example.textilemarketplacebackend.listings.models.productEnums.FabricComposition;
 import com.example.textilemarketplacebackend.listings.models.productEnums.FabricSafetyRequirements;
 import com.example.textilemarketplacebackend.listings.models.productEnums.FabricTechnology;
@@ -19,10 +18,15 @@ public class ListingDTO {
     private Long id;
     private String productName;
 
-    @NotNull(message = "Description must not be null")
-    @NotBlank(message = "Description must not be blank")
-    @Size(max = 1024, message = "Description must not be longer than 1024 characters")
-    private String description;
+    @NotNull(message = "Short description must not be null")
+    @NotBlank(message = "Short description must not be blank")
+    @Size(max = 256, message = "Short description must not be longer than 256 characters")
+    private String shortDescription;
+
+    @NotNull(message = "Long description must not be null")
+    @NotBlank(message = "Long description must not be blank")
+    @Size(max = 2048, message = "Long description must not be longer than 2048 characters")
+    private String longDescription;
 
     @NotNull(message = "Price must not be null")
     @Min(value = 1, message = "Price must be greater than one")
@@ -45,4 +49,10 @@ public class ListingDTO {
 
     @NotNull(message = "Fabric safety requirements must not be null")
     private FabricSafetyRequirements safetyRequirements;
+
+    @NotBlank(message = "Colour must not be blank")
+    private String colour;
+
+    @NotBlank(message = "Width must not be blank")
+    private String width;
 }

@@ -35,8 +35,11 @@ public class ProductListing {
     @Column(name = "product_name", nullable = false)
     private String productName;
 
-    @Column(name = "description", nullable = false, length = 1024)
-    private String description;
+    @Column(name = "short_description", nullable = false, length = 255)
+    private String shortDescription;
+
+    @Column(name = "long_description", nullable = false, length = 1024)
+    private String longDescription;
 
     @Column(name = "price", nullable = false)
     private Double price;
@@ -45,7 +48,7 @@ public class ProductListing {
     private Integer quantity;
 
     @Convert(converter = StringListConverter.class)
-    @Column(name = "image_urls", length = 4)
+    @Column(name = "image_urls", length = 2048)
     private List<String> images = new ArrayList<>();
 
     @Column(name = "fabric_type", nullable = false)
@@ -60,6 +63,12 @@ public class ProductListing {
     @Column(name = "fabric_safety_requirements", nullable = false)
     private FabricSafetyRequirements safetyRequirements;
 
+    @Column(name = "colour", nullable = false, length = 50)
+    private String colour;
+
+    @Column(name = "width", nullable = false, length = 20)
+    private String width;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
@@ -67,5 +76,4 @@ public class ProductListing {
 
     @OneToMany(mappedBy = "productListing", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Order> orders = new ArrayList<>();
-
 }

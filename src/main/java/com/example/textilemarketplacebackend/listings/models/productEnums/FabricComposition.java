@@ -6,6 +6,6 @@ public enum FabricComposition {
     ACRYLIC_FIBER,
     POLYAMIDE,
     LINEN,
-    VISCOZE,
+    VISCOSE,
     OTHER
 }
