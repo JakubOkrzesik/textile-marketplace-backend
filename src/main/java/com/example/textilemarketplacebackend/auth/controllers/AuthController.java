@@ -68,7 +68,7 @@ public class AuthController {
         try {
             return ResponseEntity.ok(authService.authenticate(request));
         } catch (Exception e) {
-            return responseHandler.generateResponse("Authentication unsuccessful", HttpStatus.OK, e);
+            return responseHandler.generateResponse("Authentication unsuccessful", HttpStatus.NOT_FOUND, e);
         }
     }
 
