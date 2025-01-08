@@ -35,7 +35,7 @@ public class ProductListing {
     @Column(name = "product_name", nullable = false)
     private String productName;
 
-    @Column(name = "short_description", nullable = false, length = 255)
+    @Column(name = "short_description", nullable = false, length = 32)
     private String shortDescription;
 
     @Column(name = "long_description", nullable = false, length = 1024)
