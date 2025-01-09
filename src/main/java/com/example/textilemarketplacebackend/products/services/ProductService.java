@@ -56,18 +56,16 @@ public class ProductService {
                     ? productListing.getImages().getFirst()
                     : null;
 
-            BuyerSellerDTO buyerSellerDTO = BuyerSellerDTO.builder()
-                    .listingName(productListing.getProductName())
-                    .productImage(productImage)
-                    .listingQuantity(productListing.getQuantity())
-                    .listingId(productListing.getId())
-                    .oldOrderPrice(productListing.getPrice())
-                    .build();
-
-            this.logger.info(buyerSellerDTO.toString());
-
             if (productListing.getOrders() != null && !productListing.getOrders().isEmpty()) {
                 for (Order order : productListing.getOrders()) {
+                    BuyerSellerDTO buyerSellerDTO = BuyerSellerDTO.builder()
+                            .listingName(productListing.getProductName())
+                            .productImage(productImage)
+                            .listingQuantity(productListing.getQuantity())
+                            .listingId(productListing.getId())
+                            .oldOrderPrice(productListing.getPrice())
+                            .build();
+
                     buyerSellerDTO.setId(order.getId());
                     buyerSellerDTO.setOrderQuantity(order.getOrderQuantity());
                     buyerSellerDTO.setNewOrderPrice(order.getNewOrderPrice());
@@ -75,8 +73,19 @@ public class ProductService {
                     buyerSellerDTOList.add(buyerSellerDTO);
                 }
             } else {
+                BuyerSellerDTO buyerSellerDTO = BuyerSellerDTO.builder()
+                        .listingName(productListing.getProductName())
+                        .productImage(productImage)
+                        .listingQuantity(productListing.getQuantity())
+                        .listingId(productListing.getId())
+                        .oldOrderPrice(productListing.getPrice())
+                        .build();
+
                 buyerSellerDTOList.add(buyerSellerDTO);
             }
+
+            // PROSZE TAK NIE PROGRAMOWAC!!!
+
         }
 
         return buyerSellerDTOList;

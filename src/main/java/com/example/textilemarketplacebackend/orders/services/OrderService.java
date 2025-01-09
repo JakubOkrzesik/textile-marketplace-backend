@@ -134,6 +134,7 @@ public class OrderService {
         Long userId = user.getId();
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NoSuchElementException("Order not found"));
+
         List<MailRequest> mailRequestList = new ArrayList<>();
         String buyerEmailBody;
         String sellerEmailBody;
@@ -143,18 +144,33 @@ public class OrderService {
 
         switch (status) {
             case ACCEPTED -> {
-                if (!seller.getId().equals(userId)) {
-                    throw new InvalidOrderStatusException("You cannot accept the offer not being the seller");
+                // Zmodyfikowane: zarówno sprzedawca, jak i kupujący mogą zaakceptować zamówienie
+                if (!seller.getId().equals(userId) && !buyer.getId().equals(userId)) {
+                    throw new InvalidOrderStatusException("You cannot accept the offer not being the seller or the buyer");
                 }
                 buyerEmailBody = String.format("Congratulations! Your order with the ID: %d has been accepted and is now being processed", order.getId());
                 sellerEmailBody = String.format("Congratulations! Your listing with the ID: %d has been sold", order.getId());
             }
-            case PENDING, REJECTED, NEGOTIATION -> {
+            case PENDING, NEGOTIATION -> {
                 if (!seller.getId().equals(userId) && !buyer.getId().equals(userId)) {
                     throw new InvalidOrderStatusException("Invalid order status type");
                 }
                 buyerEmailBody = String.format("Your order with the ID: %d has changed status to %s", order.getId(), status);
                 sellerEmailBody = String.format("Your listing with the ID: %d has changed status to %s", order.getId(), status);
+            }
+            case REJECTED -> {
+                if (!seller.getId().equals(userId) && !buyer.getId().equals(userId)) {
+                    throw new InvalidOrderStatusException("Invalid order status type");
+                }
+
+                // Release of product back to listing
+                ProductListing productListing = order.getProductListing();
+                int quantityToRestore = order.getOrderQuantity();
+                productListing.setQuantity(productListing.getQuantity() + quantityToRestore);
+                productRepository.save(productListing);
+
+                buyerEmailBody = String.format("Your order with the ID: %d has been rejected", order.getId());
+                sellerEmailBody = String.format("Your listing with the ID: %d has been updated. Reserved quantity has been restored.", order.getId());
             }
             case null, default -> throw new InvalidOrderStatusException("Invalid order status type");
         }
@@ -171,15 +187,16 @@ public class OrderService {
                 .recipients(new String[]{seller.getEmail()})
                 .build();
 
-
         mailRequestList.add(buyerMailRequest);
         mailRequestList.add(sellerMailRequest);
 
         order.setOrderStatus(status);
         orderRepository.save(order);
+
         // email service send
         emailService.sendEmail(mailRequestList);
     }
+
 
     public void changeOrderPrice(Long orderId, Double newPrice) {
         Order order = orderRepository.findById(orderId)
