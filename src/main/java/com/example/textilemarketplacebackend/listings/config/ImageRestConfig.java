@@ -3,7 +3,6 @@ package com.example.textilemarketplacebackend.listings.config;
 import com.example.textilemarketplacebackend.global.services.EnvService;
 import com.example.textilemarketplacebackend.listings.models.ImageServiceResponse;
 import com.example.textilemarketplacebackend.listings.models.InvalidImageRequestException;
-import com.example.textilemarketplacebackend.mail.models.InvalidMailRequestException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -39,9 +38,9 @@ public class ImageRestConfig {
         try {
             String responseBody = new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
             ImageServiceResponse errorResponse = objectMapper.readValue(responseBody, ImageServiceResponse.class);
-            throw new InvalidMailRequestException(errorResponse.getBody());
+            throw new InvalidImageRequestException(errorResponse.getBody());
         } catch (IOException e) {
-            throw new InvalidMailRequestException("Error reading response body: " + e.getMessage());
+            throw new InvalidImageRequestException("Error reading response body: " + e.getMessage());
         }
     }
 }

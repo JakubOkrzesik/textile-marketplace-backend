@@ -26,7 +26,7 @@ public class ListingController {
     public ResponseEntity<Object> postOffer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @Valid @RequestBody ListingDTO listingDTO) {
         try {
             listingService.postOffer(authHeader, listingDTO);
-            return responseHandlerService.generateResponse("Offer posted successfully", HttpStatus.OK, null);
+            return responseHandlerService.generateResponse(String.format("Offer with the name %s has been posted successfully.", listingDTO.getProductName()), HttpStatus.OK, null);
         } catch (Exception e) {
             return responseHandlerService.generateResponse("An error occurred while posting your advert", HttpStatus.MULTI_STATUS, e);
         }
