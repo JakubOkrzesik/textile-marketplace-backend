@@ -1,6 +1,5 @@
 package com.example.textilemarketplacebackend.orders.controllers;
 
-import com.example.textilemarketplacebackend.orders.models.Order;
 import com.example.textilemarketplacebackend.orders.models.OrderStatus;
 import com.example.textilemarketplacebackend.global.services.ResponseHandlerService;
 import com.example.textilemarketplacebackend.orders.models.OrderDTO;
@@ -37,10 +36,14 @@ public class OrderController {
         }
     }
 
-    /*@GetMapping("/getUserOrders")
-    public ResponseEntity<Object> getUserOrders(@Valid @ModelAttribute OrderDTO dto) {
-        return null;
-    }*/
+    @GetMapping("/get-user-orders")
+    public ResponseEntity<Object> getUserOrders(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+        try {
+            return responseHandlerService.generateResponse("Orders fetched successfully", HttpStatus.OK, orderService.getAllUserOrders(authHeader));
+        } catch (Exception e) {
+            return responseHandlerService.generateResponse("Failed to fetch orders", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getOrderById(@PathVariable Long id) {
@@ -56,9 +59,9 @@ public class OrderController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<Object> createOrderFromOffer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @Valid @RequestBody OrderDTO orderDTO) {
+    public ResponseEntity<Object> createOrderFromProduct(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @Valid @RequestBody OrderDTO orderDTO) {
         try {
-            OrderDTO createdOrder = orderService.createOrderFromOffer(authHeader, orderDTO);
+            OrderDTO createdOrder = orderService.createOrderFromProduct(authHeader, orderDTO);
             return responseHandlerService.generateResponse("Order created successfully", HttpStatus.CREATED, createdOrder);
         } catch (SelfPurchaseNotAllowedException e) {
             return responseHandlerService.generateResponse("Error while creating the order", HttpStatus.CONFLICT, e.getMessage());

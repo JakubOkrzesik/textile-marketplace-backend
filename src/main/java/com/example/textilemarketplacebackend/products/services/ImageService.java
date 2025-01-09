@@ -1,6 +1,6 @@
 package com.example.textilemarketplacebackend.products.services;
 
-import com.example.textilemarketplacebackend.products.models.ImageServiceResponse;
+import com.example.textilemarketplacebackend.products.models.requests.ImageServiceResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;

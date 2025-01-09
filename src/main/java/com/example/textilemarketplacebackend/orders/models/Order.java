@@ -38,5 +38,4 @@ public class Order {
     @Enumerated
     @Column(name = "order_status", nullable = false)
     private OrderStatus orderStatus;
-
 }

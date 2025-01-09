@@ -1,7 +1,11 @@
 package com.example.textilemarketplacebackend.products.services;
 
 import com.example.textilemarketplacebackend.auth.models.user.User;
+import com.example.textilemarketplacebackend.orders.models.Order;
 import com.example.textilemarketplacebackend.products.models.*;
+import com.example.textilemarketplacebackend.products.models.DTOs.ProductDTO;
+import com.example.textilemarketplacebackend.products.models.DTOs.ProductEnumDTO;
+import com.example.textilemarketplacebackend.products.models.DTOs.BuyerSellerDTO;
 import com.example.textilemarketplacebackend.products.models.productEnums.FabricComposition;
 import com.example.textilemarketplacebackend.products.models.productEnums.FabricSafetyRequirements;
 import com.example.textilemarketplacebackend.products.models.productEnums.FabricTechnology;
@@ -12,6 +16,8 @@ import com.example.textilemarketplacebackend.mail.services.EmailService;
 import com.example.textilemarketplacebackend.global.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,27 +27,68 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ListingService {
+public class ProductService {
 
     private final ProductRepository productRepository;
     private final UserService userService;
     private final EmailService emailService;
     private final ModelMapper modelMapper;
+    private Logger logger = LoggerFactory.getLogger(ProductService.class);
 
-    public List<ProductDTO> getOffers() {
+    public List<ProductDTO> getProducts() {
         return productRepository.findAll()
                 .stream()
                 .map(listing -> modelMapper.map(listing, ProductDTO.class))
                 .collect(Collectors.toList());
     }
 
-    public ProductDTO getOfferById(Long id) {
-        ProductListing productListing = productRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No offer found with this Id"));
-        return modelMapper.map(productListing, ProductDTO.class); // Zwracamy DTO zamiast encji
+    public List<BuyerSellerDTO> getUserProducts(String authHeader) {
+        List<BuyerSellerDTO> buyerSellerDTOList = new ArrayList<>();
+        User user = userService.extractUserFromToken(authHeader);
+        List<ProductListing> userProducts = productRepository.findAllByUser(user)
+                .orElse(new ArrayList<>());
+
+        // TODO needs reevaluation need to return list of ProductListing to avoid using double for loops
+
+        for (ProductListing productListing : userProducts) {
+
+            String productImage = (productListing.getImages() != null && !productListing.getImages().isEmpty())
+                    ? productListing.getImages().getFirst()
+                    : null;
+
+            BuyerSellerDTO buyerSellerDTO = BuyerSellerDTO.builder()
+                    .listingName(productListing.getProductName())
+                    .productImage(productImage)
+                    .listingQuantity(productListing.getQuantity())
+                    .listingId(productListing.getId())
+                    .oldOrderPrice(productListing.getPrice())
+                    .build();
+
+            this.logger.info(buyerSellerDTO.toString());
+
+            if (productListing.getOrders() != null && !productListing.getOrders().isEmpty()) {
+                for (Order order : productListing.getOrders()) {
+                    buyerSellerDTO.setId(order.getId());
+                    buyerSellerDTO.setOrderQuantity(order.getOrderQuantity());
+                    buyerSellerDTO.setNewOrderPrice(order.getNewOrderPrice());
+                    buyerSellerDTO.setOrderStatus(order.getOrderStatus());
+                    buyerSellerDTOList.add(buyerSellerDTO);
+                }
+            } else {
+                buyerSellerDTOList.add(buyerSellerDTO);
+            }
+        }
+
+        return buyerSellerDTOList;
     }
 
-    public void postOffer(String authHeader, ProductDTO productDTO) {
+    public ProductDTO getProductById(Long id) {
+        ProductListing productListing = productRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("No offer found with this Id"));
+        return modelMapper.map(productListing, ProductDTO.class);
+    }
+
+    public void postProduct(String authHeader, ProductDTO productDTO) {
         User user = userService.extractUserFromToken(authHeader);
         List<MailRequest> mailRequestList = new ArrayList<>();
 
@@ -72,7 +119,7 @@ public class ListingService {
         emailService.sendEmail(mailRequestList);
     }
 
-    public void editOffer(String authHeader, Long id, ProductDTO productDTO) {
+    public void editProduct(String authHeader, Long id, ProductDTO productDTO) {
         User user = userService.extractUserFromToken(authHeader);
 
         ProductListing existingProductListing = productRepository.findById(id)
@@ -95,7 +142,7 @@ public class ListingService {
         productRepository.save(existingProductListing);
     }
 
-    public void deleteOffer(String authHeader, Long id) {
+    public void deleteProduct(String authHeader, Long id) {
         User user = userService.extractUserFromToken(authHeader);
         List<MailRequest> mailRequestList = new ArrayList<>();
 

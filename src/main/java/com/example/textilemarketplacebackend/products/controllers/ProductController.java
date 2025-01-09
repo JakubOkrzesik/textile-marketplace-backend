@@ -2,8 +2,8 @@ package com.example.textilemarketplacebackend.products.controllers;
 
 import com.example.textilemarketplacebackend.global.services.ResponseHandlerService;
 
-import com.example.textilemarketplacebackend.products.models.ProductDTO;
-import com.example.textilemarketplacebackend.products.services.ListingService;
+import com.example.textilemarketplacebackend.products.models.DTOs.ProductDTO;
+import com.example.textilemarketplacebackend.products.services.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -15,17 +15,17 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("api/v1/products")
 @RequiredArgsConstructor
-public class ListingController {
+public class ProductController {
 
     private final ResponseHandlerService responseHandlerService;
-    private final ListingService listingService;
 
+    private final ProductService productService;
 
     //Add new offer (Now using DTO)
     @PostMapping("/add")
     public ResponseEntity<Object> postOffer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @Valid @RequestBody ProductDTO productDTO) {
         try {
-            listingService.postOffer(authHeader, productDTO);
+            productService.postProduct(authHeader, productDTO);
             return responseHandlerService.generateResponse(String.format("Offer with the name %s has been posted successfully.", productDTO.getProductName()), HttpStatus.OK, null);
         } catch (Exception e) {
             return responseHandlerService.generateResponse("An error occurred while posting your advert", HttpStatus.MULTI_STATUS, e);
@@ -36,7 +36,7 @@ public class ListingController {
     @GetMapping("/{id}")
     public ResponseEntity<Object> getOfferById(@PathVariable Long id) {
         try {
-            return responseHandlerService.generateResponse(String.format("Offer with id %d has been fetched", id), HttpStatus.OK, listingService.getOfferById(id));
+            return responseHandlerService.generateResponse(String.format("Offer with id %d has been fetched", id), HttpStatus.OK, productService.getProductById(id));
         } catch (Exception e) {
             return responseHandlerService.generateResponse("Fetching offer failed", HttpStatus.MULTI_STATUS, e);
         }
@@ -46,7 +46,7 @@ public class ListingController {
     @GetMapping("/get_all")
     public ResponseEntity<Object> getOffers() {
         try {
-            return responseHandlerService.generateResponse("Offers have been fetched", HttpStatus.OK, listingService.getOffers());
+            return responseHandlerService.generateResponse("Offers have been fetched", HttpStatus.OK, productService.getProducts());
         } catch (Exception e) {
             return responseHandlerService.generateResponse("Fetching offers failed", HttpStatus.MULTI_STATUS, e.getMessage());
         }
@@ -60,7 +60,7 @@ public class ListingController {
             @Valid @RequestBody ProductDTO editedProductDTO) {
         try {
             // we need to check if the offer actually belongs to the user
-            listingService.editOffer(authHeader, id, editedProductDTO);
+            productService.editProduct(authHeader, id, editedProductDTO);
             return responseHandlerService.generateResponse("Offer edited successfully", HttpStatus.OK, null);
         } catch (Exception e) {
             return responseHandlerService.generateResponse("An error occurred while editing your advert", HttpStatus.MULTI_STATUS, e.getMessage());
@@ -72,7 +72,7 @@ public class ListingController {
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<Object> deleteOffer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @PathVariable("id") Long id) {
         try {
-            listingService.deleteOffer(authHeader, id);
+            productService.deleteProduct(authHeader, id);
             return responseHandlerService.generateResponse("Offer deleted successfully", HttpStatus.NO_CONTENT,null);
         } catch (Exception e) {
             return responseHandlerService.generateResponse("An error occurred while deleting your advert", HttpStatus.MULTI_STATUS,e.getMessage());
@@ -82,9 +82,18 @@ public class ListingController {
     @GetMapping("/get-listing-enums")
     public ResponseEntity<Object> getListingEnums() {
         try {
-            return responseHandlerService.generateResponse("Listing enums fetched", HttpStatus.OK, listingService.getListingEnums());
+            return responseHandlerService.generateResponse("Listing enums fetched", HttpStatus.OK, productService.getListingEnums());
         } catch (Exception e) {
             return responseHandlerService.generateResponse("An error occurred while fetching listing enums", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    @GetMapping("/get-user-products")
+    public ResponseEntity<Object> getUserProducts(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+        try {
+            return responseHandlerService.generateResponse("User products fetched", HttpStatus.OK, productService.getUserProducts(authHeader));
+        } catch (Exception e) {
+            return responseHandlerService.generateResponse("An error occurred while fetching user products", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 

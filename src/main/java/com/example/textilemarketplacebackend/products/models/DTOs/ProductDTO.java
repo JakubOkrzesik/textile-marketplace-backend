@@ -1,4 +1,4 @@
-package com.example.textilemarketplacebackend.products.models;
+package com.example.textilemarketplacebackend.products.models.DTOs;
 
 import com.example.textilemarketplacebackend.products.models.productEnums.FabricComposition;
 import com.example.textilemarketplacebackend.products.models.productEnums.FabricSafetyRequirements;

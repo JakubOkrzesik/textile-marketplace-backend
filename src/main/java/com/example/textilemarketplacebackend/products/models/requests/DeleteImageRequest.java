@@ -1,4 +1,4 @@
-package com.example.textilemarketplacebackend.products.models;
+package com.example.textilemarketplacebackend.products.models.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

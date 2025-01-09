@@ -5,6 +5,7 @@ import com.example.textilemarketplacebackend.mail.models.MailRequest;
 import com.example.textilemarketplacebackend.mail.models.MailRequestType;
 import com.example.textilemarketplacebackend.mail.services.EmailService;
 import com.example.textilemarketplacebackend.orders.models.*;
+import com.example.textilemarketplacebackend.products.models.DTOs.BuyerSellerDTO;
 import com.example.textilemarketplacebackend.products.models.ProductListing;
 import com.example.textilemarketplacebackend.auth.models.user.User;
 import com.example.textilemarketplacebackend.products.models.ProductRepository;
@@ -43,10 +44,26 @@ public class OrderService {
         return modelMapper.map(order, OrderDTO.class); // Returns DTO instead of Order object
     }
 
+    public List<BuyerSellerDTO> getAllUserOrders(String authHeader) {
+        User user = userService.extractUserFromToken(authHeader);
 
-    // Creates an order from an offer and returns the created order as DTO
+        return orderRepository.findAllByBuyer(user).stream().map(order -> BuyerSellerDTO.builder()
+                .listingName(order.getProductListing().getProductName())
+                .productImage(order.getProductListing().getImages() != null && order.getProductListing().getImages().isEmpty() ? order.getProductListing().getImages().getFirst() : null)
+                .id(order.getId())
+                .listingQuantity(order.getProductListing().getQuantity())
+                .orderQuantity(order.getOrderQuantity())
+                .listingId(order.getProductListing().getId())
+                .newOrderPrice(order.getNewOrderPrice())
+                .oldOrderPrice(order.getProductListing().getPrice())
+                .orderStatus(order.getOrderStatus())
+                .build())
+                .toList();
+    }
+
+    // Creates an order from a product and returns the created order as DTO
     @Transactional
-    public OrderDTO createOrderFromOffer(String authHeader, OrderDTO orderDTO) {
+    public OrderDTO createOrderFromProduct(String authHeader, OrderDTO orderDTO) {
 
         User user = userService.extractUserFromToken(authHeader);
         int quantity = orderDTO.getOrderQuantity();

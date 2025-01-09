@@ -1,8 +1,8 @@
 package com.example.textilemarketplacebackend.products.controllers;
 
 import com.example.textilemarketplacebackend.global.services.ResponseHandlerService;
-import com.example.textilemarketplacebackend.products.models.ImageServiceResponse;
-import com.example.textilemarketplacebackend.products.models.InvalidImageRequestException;
+import com.example.textilemarketplacebackend.products.models.requests.ImageServiceResponse;
+import com.example.textilemarketplacebackend.products.models.requests.InvalidImageRequestException;
 import com.example.textilemarketplacebackend.products.services.ImageService;
 import com.example.textilemarketplacebackend.products.services.StorageService;
 import lombok.RequiredArgsConstructor;

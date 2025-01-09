@@ -30,5 +30,7 @@ public class OrderDTO {
     @Min(value = 1, message = "Price must be greater than one")
     private Double newOrderPrice;
 
+    private Double oldOrderPrice;
+
     private OrderStatus orderStatus;
 }
