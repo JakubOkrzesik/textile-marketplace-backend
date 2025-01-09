@@ -1,10 +1,10 @@
-package com.example.textilemarketplacebackend.listings.models;
+package com.example.textilemarketplacebackend.products.models;
 
-import com.example.textilemarketplacebackend.listings.models.productEnums.FabricComposition;
-import com.example.textilemarketplacebackend.listings.models.productEnums.FabricSafetyRequirements;
-import com.example.textilemarketplacebackend.listings.models.productEnums.FabricTechnology;
-import com.example.textilemarketplacebackend.listings.models.productEnums.FabricType;
-import com.example.textilemarketplacebackend.listings.services.StringListConverter;
+import com.example.textilemarketplacebackend.products.models.productEnums.FabricComposition;
+import com.example.textilemarketplacebackend.products.models.productEnums.FabricSafetyRequirements;
+import com.example.textilemarketplacebackend.products.models.productEnums.FabricTechnology;
+import com.example.textilemarketplacebackend.products.models.productEnums.FabricType;
+import com.example.textilemarketplacebackend.products.services.StringListConverter;
 import com.example.textilemarketplacebackend.orders.models.Order;
 import com.example.textilemarketplacebackend.auth.models.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
