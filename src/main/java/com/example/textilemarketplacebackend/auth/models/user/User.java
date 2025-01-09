@@ -1,6 +1,6 @@
 package com.example.textilemarketplacebackend.auth.models.user;
 
-import com.example.textilemarketplacebackend.listings.models.ProductListing;
+import com.example.textilemarketplacebackend.products.models.ProductListing;
 import com.example.textilemarketplacebackend.orders.models.Order;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -59,9 +59,6 @@ public class User implements UserDetails {
     @JsonManagedReference
     private List<ProductListing> productListings = new ArrayList<>();
 
-    @OneToMany(mappedBy = "seller", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<Order> ordersAsSeller = new ArrayList<>();
-
     @OneToMany(mappedBy = "buyer", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Order> ordersAsBuyer = new ArrayList<>();
 
@@ -86,7 +83,6 @@ public class User implements UserDetails {
                 ", nip=" + nip +
                 ", role=" + role +
                 ", products=" + productListings +
-                ", buying=" + ordersAsSeller +
                 ", selling=" + ordersAsBuyer +
                 '}';
     }

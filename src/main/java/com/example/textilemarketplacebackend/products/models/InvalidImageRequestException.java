@@ -1,4 +1,4 @@
-package com.example.textilemarketplacebackend.listings.models;
+package com.example.textilemarketplacebackend.products.models;
 
 public class InvalidImageRequestException extends RuntimeException {
     public InvalidImageRequestException(String message) {

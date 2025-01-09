@@ -1,22 +1,18 @@
-package com.example.textilemarketplacebackend.listings.controllers;
+package com.example.textilemarketplacebackend.products.controllers;
 
 import com.example.textilemarketplacebackend.global.services.ResponseHandlerService;
-import com.example.textilemarketplacebackend.listings.models.DeleteImageRequest;
-import com.example.textilemarketplacebackend.listings.models.ImageServiceResponse;
-import com.example.textilemarketplacebackend.listings.models.InvalidImageRequestException;
-import com.example.textilemarketplacebackend.listings.services.ImageService;
-import com.example.textilemarketplacebackend.listings.services.StorageService;
+import com.example.textilemarketplacebackend.products.models.ImageServiceResponse;
+import com.example.textilemarketplacebackend.products.models.InvalidImageRequestException;
+import com.example.textilemarketplacebackend.products.services.ImageService;
+import com.example.textilemarketplacebackend.products.services.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor

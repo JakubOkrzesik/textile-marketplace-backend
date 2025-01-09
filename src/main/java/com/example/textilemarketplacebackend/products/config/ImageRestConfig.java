@@ -1,8 +1,8 @@
-package com.example.textilemarketplacebackend.listings.config;
+package com.example.textilemarketplacebackend.products.config;
 
 import com.example.textilemarketplacebackend.global.services.EnvService;
-import com.example.textilemarketplacebackend.listings.models.ImageServiceResponse;
-import com.example.textilemarketplacebackend.listings.models.InvalidImageRequestException;
+import com.example.textilemarketplacebackend.products.models.ImageServiceResponse;
+import com.example.textilemarketplacebackend.products.models.InvalidImageRequestException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

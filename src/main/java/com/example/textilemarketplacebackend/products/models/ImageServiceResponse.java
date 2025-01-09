@@ -1,4 +1,4 @@
-package com.example.textilemarketplacebackend.listings.models;
+package com.example.textilemarketplacebackend.products.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

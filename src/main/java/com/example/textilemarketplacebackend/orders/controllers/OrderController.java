@@ -37,6 +37,11 @@ public class OrderController {
         }
     }
 
+    /*@GetMapping("/getUserOrders")
+    public ResponseEntity<Object> getUserOrders(@Valid @ModelAttribute OrderDTO dto) {
+        return null;
+    }*/
+
     @GetMapping("/{id}")
     public ResponseEntity<Object> getOrderById(@PathVariable Long id) {
         try {

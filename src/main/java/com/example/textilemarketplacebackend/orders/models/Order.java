@@ -1,7 +1,7 @@
 package com.example.textilemarketplacebackend.orders.models;
 
 import com.example.textilemarketplacebackend.auth.models.user.User;
-import com.example.textilemarketplacebackend.listings.models.ProductListing;
+import com.example.textilemarketplacebackend.products.models.ProductListing;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,12 +26,6 @@ public class Order {
     @JoinColumn(name = "buyer_id", nullable = false)
     @JsonBackReference
     private User buyer;
-
-    // The seller of the product/listing
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "seller_id", nullable = false)
-    @JsonBackReference
-    private User seller;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "product_id", nullable = false)

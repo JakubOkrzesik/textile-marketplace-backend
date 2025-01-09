@@ -1,9 +1,9 @@
-package com.example.textilemarketplacebackend.listings.models;
+package com.example.textilemarketplacebackend.products.models;
 
-import com.example.textilemarketplacebackend.listings.models.productEnums.FabricComposition;
-import com.example.textilemarketplacebackend.listings.models.productEnums.FabricSafetyRequirements;
-import com.example.textilemarketplacebackend.listings.models.productEnums.FabricTechnology;
-import com.example.textilemarketplacebackend.listings.models.productEnums.FabricType;
+import com.example.textilemarketplacebackend.products.models.productEnums.FabricComposition;
+import com.example.textilemarketplacebackend.products.models.productEnums.FabricSafetyRequirements;
+import com.example.textilemarketplacebackend.products.models.productEnums.FabricTechnology;
+import com.example.textilemarketplacebackend.products.models.productEnums.FabricType;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ListingDTO {
+public class ProductDTO {
     private Long id;
     private String productName;
 

@@ -1,9 +1,9 @@
-package com.example.textilemarketplacebackend.listings.controllers;
+package com.example.textilemarketplacebackend.products.controllers;
 
 import com.example.textilemarketplacebackend.global.services.ResponseHandlerService;
 
-import com.example.textilemarketplacebackend.listings.models.ListingDTO;
-import com.example.textilemarketplacebackend.listings.services.ListingService;
+import com.example.textilemarketplacebackend.products.models.ProductDTO;
+import com.example.textilemarketplacebackend.products.services.ListingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("api/v1/listings")
+@RequestMapping("api/v1/products")
 @RequiredArgsConstructor
 public class ListingController {
 
@@ -23,10 +23,10 @@ public class ListingController {
 
     //Add new offer (Now using DTO)
     @PostMapping("/add")
-    public ResponseEntity<Object> postOffer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @Valid @RequestBody ListingDTO listingDTO) {
+    public ResponseEntity<Object> postOffer(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @Valid @RequestBody ProductDTO productDTO) {
         try {
-            listingService.postOffer(authHeader, listingDTO);
-            return responseHandlerService.generateResponse(String.format("Offer with the name %s has been posted successfully.", listingDTO.getProductName()), HttpStatus.OK, null);
+            listingService.postOffer(authHeader, productDTO);
+            return responseHandlerService.generateResponse(String.format("Offer with the name %s has been posted successfully.", productDTO.getProductName()), HttpStatus.OK, null);
         } catch (Exception e) {
             return responseHandlerService.generateResponse("An error occurred while posting your advert", HttpStatus.MULTI_STATUS, e);
         }
@@ -57,10 +57,10 @@ public class ListingController {
     public ResponseEntity<Object> editOffer(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
             @PathVariable("id") Long id,
-            @Valid @RequestBody ListingDTO editedListingDTO) {
+            @Valid @RequestBody ProductDTO editedProductDTO) {
         try {
             // we need to check if the offer actually belongs to the user
-            listingService.editOffer(authHeader, id, editedListingDTO);
+            listingService.editOffer(authHeader, id, editedProductDTO);
             return responseHandlerService.generateResponse("Offer edited successfully", HttpStatus.OK, null);
         } catch (Exception e) {
             return responseHandlerService.generateResponse("An error occurred while editing your advert", HttpStatus.MULTI_STATUS, e.getMessage());

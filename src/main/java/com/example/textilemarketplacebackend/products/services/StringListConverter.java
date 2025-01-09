@@ -1,4 +1,4 @@
-package com.example.textilemarketplacebackend.listings.services;
+package com.example.textilemarketplacebackend.products.services;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;

@@ -1,4 +1,4 @@
-package com.example.textilemarketplacebackend.listings.models.productEnums;
+package com.example.textilemarketplacebackend.products.models.productEnums;
 
 public enum FabricTechnology {
     EASY_CLEAN,
