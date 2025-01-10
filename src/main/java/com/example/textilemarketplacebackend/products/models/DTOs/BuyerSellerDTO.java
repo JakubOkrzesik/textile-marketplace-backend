@@ -1,10 +1,13 @@
 package com.example.textilemarketplacebackend.products.models.DTOs;
 
+import com.example.textilemarketplacebackend.orders.models.DTOs.MessageDTO;
 import com.example.textilemarketplacebackend.orders.models.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -22,4 +25,5 @@ public class BuyerSellerDTO {
     private double newOrderPrice; // current price based on negotiations
     private double oldOrderPrice; // original price set by the seller
     private OrderStatus orderStatus;
+    private List<MessageDTO> messages;
 }

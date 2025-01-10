@@ -1,7 +1,7 @@
 package com.example.textilemarketplacebackend.auth.models.user;
 
 import com.example.textilemarketplacebackend.products.models.DTOs.ProductDTO;
-import com.example.textilemarketplacebackend.orders.models.OrderDTO;
+import com.example.textilemarketplacebackend.orders.models.DTOs.OrderDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

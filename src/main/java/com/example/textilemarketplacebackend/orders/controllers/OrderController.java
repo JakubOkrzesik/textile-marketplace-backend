@@ -2,8 +2,10 @@ package com.example.textilemarketplacebackend.orders.controllers;
 
 import com.example.textilemarketplacebackend.orders.models.OrderStatus;
 import com.example.textilemarketplacebackend.global.services.ResponseHandlerService;
-import com.example.textilemarketplacebackend.orders.models.OrderDTO;
+import com.example.textilemarketplacebackend.orders.models.DTOs.OrderDTO;
 import com.example.textilemarketplacebackend.orders.models.SelfPurchaseNotAllowedException;
+import com.example.textilemarketplacebackend.orders.models.requests.OrderCreationRequest;
+import com.example.textilemarketplacebackend.orders.models.requests.UpdatePriceRequest;
 import com.example.textilemarketplacebackend.orders.services.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -59,10 +61,10 @@ public class OrderController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<Object> createOrderFromProduct(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @Valid @RequestBody OrderDTO orderDTO) {
+    public ResponseEntity<Object> createOrderFromProduct(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @Valid @RequestBody OrderCreationRequest orderCreationRequest) {
         try {
-            OrderDTO createdOrder = orderService.createOrderFromProduct(authHeader, orderDTO);
-            return responseHandlerService.generateResponse("Order created successfully", HttpStatus.CREATED, createdOrder);
+            orderService.createOrderFromProduct(authHeader, orderCreationRequest);
+            return responseHandlerService.generateResponse("Order created successfully", HttpStatus.CREATED, null);
         } catch (SelfPurchaseNotAllowedException e) {
             return responseHandlerService.generateResponse("Error while creating the order", HttpStatus.CONFLICT, e.getMessage());
         } catch (Exception e) {
@@ -71,9 +73,10 @@ public class OrderController {
     }
 
     @PatchMapping("/{id}/change-price")
-    public ResponseEntity<Object> changeOrderPrice(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @PathVariable Long id, @RequestBody Double newPrice) {
+    public ResponseEntity<Object> changeOrderPrice(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @PathVariable Long id, @Valid @RequestBody UpdatePriceRequest priceRequest) {
         try {
-            orderService.changeOrderPrice(authHeader, id, newPrice);
+            // change price based on order id
+            orderService.changeOrderPrice(authHeader, id, priceRequest);
             return responseHandlerService.generateResponse("Order price changed successfully", HttpStatus.OK, null);
         } catch (NoSuchElementException e) {
             return responseHandlerService.generateResponse("Order with the provided id was not found", HttpStatus.NOT_FOUND, e.getMessage());

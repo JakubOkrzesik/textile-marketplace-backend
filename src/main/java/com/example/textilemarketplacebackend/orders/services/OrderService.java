@@ -5,19 +5,22 @@ import com.example.textilemarketplacebackend.mail.models.MailRequest;
 import com.example.textilemarketplacebackend.mail.models.MailRequestType;
 import com.example.textilemarketplacebackend.mail.services.EmailService;
 import com.example.textilemarketplacebackend.orders.models.*;
+import com.example.textilemarketplacebackend.orders.models.DTOs.MessageDTO;
+import com.example.textilemarketplacebackend.orders.models.DTOs.OrderDTO;
+import com.example.textilemarketplacebackend.orders.models.requests.OrderCreationRequest;
+import com.example.textilemarketplacebackend.orders.models.requests.UpdatePriceRequest;
 import com.example.textilemarketplacebackend.products.models.DTOs.BuyerSellerDTO;
 import com.example.textilemarketplacebackend.products.models.ProductListing;
 import com.example.textilemarketplacebackend.auth.models.user.User;
 import com.example.textilemarketplacebackend.products.models.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.internal.asm.TypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.time.Instant;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,7 +38,7 @@ public class OrderService {
         List<Order> orders = orderRepository.findAll();
         return orders.stream()
                 .map(order -> modelMapper.map(order, OrderDTO.class))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // Finds specific order by ID
@@ -58,22 +61,23 @@ public class OrderService {
                 .newOrderPrice(order.getNewOrderPrice())
                 .oldOrderPrice(order.getProductListing().getPrice())
                 .orderStatus(order.getOrderStatus())
+                        .messages(order.getMessageList().stream().map(message -> modelMapper.map(message, MessageDTO.class)).toList())
                 .build())
                 .toList();
     }
 
     // Creates an order from a product and returns the created order as DTO
     @Transactional
-    public OrderDTO createOrderFromProduct(String authHeader, OrderDTO orderDTO) {
+    public void createOrderFromProduct(String authHeader, OrderCreationRequest orderRequest) {
 
         User user = userService.extractUserFromToken(authHeader);
-        int quantity = orderDTO.getOrderQuantity();
-        double price = orderDTO.getNewOrderPrice();
+        int quantity = orderRequest.getOrderQuantity();
+        double price = orderRequest.getPrice();
 
         List<MailRequest> mailRequestList = new ArrayList<>();
 
         // Checking if product listing with that id exists
-        ProductListing productListing = productRepository.findById(orderDTO.getListingId())
+        ProductListing productListing = productRepository.findById(orderRequest.getListingId())
                 .orElseThrow(() -> new NoSuchElementException("Offer not found"));
 
         if (productListing.getUser().getId().equals(user.getId())) {
@@ -93,15 +97,18 @@ public class OrderService {
                 .orderStatus(OrderStatus.PENDING)
                 .build();
 
-        OrderDTO orderDto = OrderDTO.builder()
-                .id(order.getId())
-                .buyerId(orderDTO.getBuyerId())
-                .sellerId(order.getProductListing().getUser().getId())
-                .orderQuantity(order.getOrderQuantity())
-                .orderStatus(order.getOrderStatus())
-                .newOrderPrice(order.getNewOrderPrice())
-                .build();
-
+        if (orderRequest.getMessage()!=null) {
+            List<Message> messages = new ArrayList<>();
+            Message message = Message.builder()
+                    .sender(OrderEnum.BUYER)
+                    .price(price)
+                    .message(orderRequest.getMessage())
+                    .date(Date.from(Instant.now()))
+                    .order(order)
+                    .build();
+            messages.add(message);
+            order.setMessageList(messages);
+        }
 
         // Save and return the order as DTO
         orderRepository.save(order);
@@ -120,8 +127,6 @@ public class OrderService {
         mailRequestList.add(orderMailRequest);
 
         emailService.sendEmail(mailRequestList);
-
-        return orderDto;
     }
 
     public void updateOrderStatus(String authHeader, Long orderId, OrderStatus status) {
@@ -198,11 +203,7 @@ public class OrderService {
     }
 
 
-    public void changeOrderPrice(String authHeader, Long orderId, Double newPrice) {
-
-        if (newPrice == null || newPrice <= 0) {
-            throw new IllegalArgumentException("New price must be a positive value");
-        }
+    public void changeOrderPrice(String authHeader, Long orderId, UpdatePriceRequest priceRequest) {
 
         User user = userService.extractUserFromToken(authHeader);
 
@@ -220,7 +221,20 @@ public class OrderService {
             throw new UserUnauthorizedToPerformRequest("User not authorized to perform this request");
         }
 
-        order.setNewOrderPrice(newPrice);
+        if (!priceRequest.getMessage().isEmpty()) {
+            List<Message> messages = order.getMessageList();
+            Message message = Message.builder()
+                    .sender(OrderEnum.BUYER)
+                    .price(priceRequest.getPrice())
+                    .message(priceRequest.getMessage())
+                    .date(Date.from(Instant.now()))
+                    .order(order)
+                    .build();
+            messages.add(message);
+            order.setMessageList(messages);
+        }
+
+        order.setNewOrderPrice(priceRequest.getPrice());
         orderRepository.save(order);
     }
 

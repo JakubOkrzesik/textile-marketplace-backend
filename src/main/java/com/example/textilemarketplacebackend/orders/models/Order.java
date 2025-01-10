@@ -6,6 +6,9 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @Entity
 @Builder
@@ -34,6 +37,9 @@ public class Order {
 
     @Column(name = "new_order_price", length = 512)
     private Double newOrderPrice;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Message> messageList = new ArrayList<>();
 
     @Enumerated
     @Column(name = "order_status", nullable = false)
