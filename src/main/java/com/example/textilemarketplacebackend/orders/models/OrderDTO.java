@@ -1,5 +1,6 @@
 package com.example.textilemarketplacebackend.orders.models;
 
+import com.example.textilemarketplacebackend.auth.models.user.User;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

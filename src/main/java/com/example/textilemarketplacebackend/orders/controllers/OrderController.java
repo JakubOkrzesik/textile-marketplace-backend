@@ -109,14 +109,19 @@ public class OrderController {
     }
 
 
-    /*@PutMapping("/{id}/reject")
-    public ResponseEntity<Object> rejectOrder(@PathVariable Long id) {
+    @PutMapping("/{id}/reject")
+    public ResponseEntity<Object> rejectOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @PathVariable Long id) {
         try {
-            orderService.updateOrderStatus(id, OrderStatus.REJECTED);
+            orderService.updateOrderStatus(authHeader, id, OrderStatus.REJECTED);
             return responseHandlerService.generateResponse("Order rejected successfully", HttpStatus.OK, null);
+        } catch (NoSuchElementException e) {
+            return responseHandlerService.generateResponse("Order with the provided id was not found", HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return responseHandlerService.generateResponse("User not valid to perform action", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         } catch (Exception e) {
-            return responseHandlerService.generateResponse("Failed to reject order", HttpStatus.INTERNAL_SERVER_ERROR, e);
+            return responseHandlerService.generateResponse("Failed to reject order", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
-    }*/
+    }
+
 
 }

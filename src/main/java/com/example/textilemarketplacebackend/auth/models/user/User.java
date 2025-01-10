@@ -2,6 +2,7 @@ package com.example.textilemarketplacebackend.auth.models.user;
 
 import com.example.textilemarketplacebackend.products.models.ProductListing;
 import com.example.textilemarketplacebackend.orders.models.Order;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -56,7 +57,7 @@ public class User implements UserDetails {
     private boolean isActivated;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonBackReference
     private List<ProductListing> productListings = new ArrayList<>();
 
     @OneToMany(mappedBy = "buyer", cascade = CascadeType.REMOVE, orphanRemoval = true)
