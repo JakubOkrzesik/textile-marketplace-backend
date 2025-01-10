@@ -2,7 +2,8 @@ package com.example.textilemarketplacebackend.orders.models;
 
 public enum OrderStatus {
     PENDING,
-    NEGOTIATION,
+    BUYER_NEGOTIATION,
+    SELLER_NEGOTIATION,
     ACCEPTED,
     REJECTED
 }

@@ -3,6 +3,7 @@ package com.example.textilemarketplacebackend.products.services;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
+import com.example.textilemarketplacebackend.global.services.EnvService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -12,9 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class StorageService {
 
-    @Value("${application.bucket.name}")
-    private String bucketName;
-
+    private final EnvService envService;
     private final AmazonS3 s3Client;
 
 
@@ -23,10 +22,10 @@ public class StorageService {
     }
 
     public void deleteItem(String fileName) {
-        s3Client.deleteObject(new DeleteObjectRequest(bucketName, fileName));
+        s3Client.deleteObject(new DeleteObjectRequest(envService.getAWS_S3_BUCKET_NAME(), fileName));
     }
 
     public void deleteItems(String[] keys) {
-        s3Client.deleteObjects(new DeleteObjectsRequest(bucketName).withKeys(keys));
+        s3Client.deleteObjects(new DeleteObjectsRequest(envService.getAWS_S3_BUCKET_NAME()).withKeys(keys));
     }
 }

@@ -52,15 +52,10 @@ public class ProductService {
 
         for (ProductListing productListing : userProducts) {
 
-            String productImage = (productListing.getImages() != null && !productListing.getImages().isEmpty())
-                    ? productListing.getImages().getFirst()
-                    : null;
-
             if (productListing.getOrders() != null && !productListing.getOrders().isEmpty()) {
                 for (Order order : productListing.getOrders()) {
                     BuyerSellerDTO buyerSellerDTO = BuyerSellerDTO.builder()
                             .listingName(productListing.getProductName())
-                            .productImage(productImage)
                             .listingQuantity(productListing.getQuantity())
                             .listingId(productListing.getId())
                             .oldOrderPrice(productListing.getPrice())
@@ -75,7 +70,6 @@ public class ProductService {
             } else {
                 BuyerSellerDTO buyerSellerDTO = BuyerSellerDTO.builder()
                         .listingName(productListing.getProductName())
-                        .productImage(productImage)
                         .listingQuantity(productListing.getQuantity())
                         .listingId(productListing.getId())
                         .oldOrderPrice(productListing.getPrice())

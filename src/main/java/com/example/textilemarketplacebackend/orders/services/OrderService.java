@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -123,7 +124,6 @@ public class OrderService {
         return orderDto;
     }
 
-    //
     public void updateOrderStatus(String authHeader, Long orderId, OrderStatus status) {
 
         if (status == null) {
@@ -151,7 +151,7 @@ public class OrderService {
                 buyerEmailBody = String.format("Congratulations! Your order with the ID: %d has been accepted and is now being processed", order.getId());
                 sellerEmailBody = String.format("Congratulations! Your listing with the ID: %d has been sold", order.getId());
             }
-            case PENDING, NEGOTIATION -> {
+            case PENDING, BUYER_NEGOTIATION, SELLER_NEGOTIATION -> {
                 if (!seller.getId().equals(userId) && !buyer.getId().equals(userId)) {
                     throw new InvalidOrderStatusException("Invalid order status type");
                 }
@@ -198,18 +198,35 @@ public class OrderService {
     }
 
 
-    public void changeOrderPrice(Long orderId, Double newPrice) {
+    public void changeOrderPrice(String authHeader, Long orderId, Double newPrice) {
+
+        if (newPrice == null || newPrice <= 0) {
+            throw new IllegalArgumentException("New price must be a positive value");
+        }
+
+        User user = userService.extractUserFromToken(authHeader);
+
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NoSuchElementException("Order not found"));
+        Long userId = user.getId();
+        Long buyerId = order.getBuyer().getId();
+        Long sellerId = order.getProductListing().getUser().getId();
+
+        if (Objects.equals(userId, buyerId)) {
+            order.setOrderStatus(OrderStatus.BUYER_NEGOTIATION);
+        } else if (Objects.equals(userId, sellerId)) {
+            order.setOrderStatus(OrderStatus.SELLER_NEGOTIATION);
+        } else {
+            throw new UserUnauthorizedToPerformRequest("User not authorized to perform this request");
+        }
 
         order.setNewOrderPrice(newPrice);
-        order.setOrderStatus(OrderStatus.NEGOTIATION);
         orderRepository.save(order);
     }
 
 //    public void deleteOrder(Long id) {
 //        orderRepository.deleteById(id);
 //    }
-//Perhaps we will need it later
+// Perhaps we will need it later
 
 }
