@@ -1,17 +1,3 @@
-  cloud:
-    aws:
-      credentials:
-        secret_key:
-        access-key:
-      region:
-        static: eu-central-1
-      stack:
-        auto: false
-
-  application:
-    bucket:
-      name:
-
   spring:
     servlet:
       multipart:
