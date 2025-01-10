@@ -71,9 +71,9 @@ public class OrderController {
     }
 
     @PatchMapping("/{id}/change-price")
-    public ResponseEntity<Object> changeOrderPrice(@PathVariable Long id, @RequestBody Double newPrice) {
+    public ResponseEntity<Object> changeOrderPrice(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @PathVariable Long id, @RequestBody Double newPrice) {
         try {
-            orderService.changeOrderPrice(id, newPrice);
+            orderService.changeOrderPrice(authHeader, id, newPrice);
             return responseHandlerService.generateResponse("Order price changed successfully", HttpStatus.OK, null);
         } catch (NoSuchElementException e) {
             return responseHandlerService.generateResponse("Order with the provided id was not found", HttpStatus.NOT_FOUND, e.getMessage());
