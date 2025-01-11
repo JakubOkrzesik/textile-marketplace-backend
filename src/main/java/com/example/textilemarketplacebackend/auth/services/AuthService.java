@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -126,6 +127,9 @@ public class AuthService {
         User user = validateTokenAndGetUser(authHeader, TokenType.ACCOUNT_ACTIVATION);
 
         user.setActivated(true);
+        user.setSubscription(Subscription.builder()
+                .endDate(LocalDate.now().plusMonths(1))
+                .build());
         userService.save(user);
     }
 

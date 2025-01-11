@@ -20,7 +20,7 @@ public class ProductDTO {
 
     @NotNull(message = "Short description must not be null")
     @NotBlank(message = "Short description must not be blank")
-    @Size(max = 256, message = "Short description must not be longer than 256 characters")
+    @Size(max = 32, message = "Short description must not be longer than 32 characters")
     private String shortDescription;
 
     @NotNull(message = "Long description must not be null")

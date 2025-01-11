@@ -42,16 +42,6 @@ public class ProductController {
         }
     }
 
-    //Retrieve all offers from DB
-    @GetMapping("/get_all")
-    public ResponseEntity<Object> getOffers() {
-        try {
-            return responseHandlerService.generateResponse("Offers have been fetched", HttpStatus.OK, productService.getProducts());
-        } catch (Exception e) {
-            return responseHandlerService.generateResponse("Fetching offers failed", HttpStatus.MULTI_STATUS, e.getMessage());
-        }
-    }
-
     // Edits exising offer
     @PatchMapping("/{id}/edit")
     public ResponseEntity<Object> editOffer(
@@ -76,15 +66,6 @@ public class ProductController {
             return responseHandlerService.generateResponse("Offer deleted successfully", HttpStatus.NO_CONTENT,null);
         } catch (Exception e) {
             return responseHandlerService.generateResponse("An error occurred while deleting your advert", HttpStatus.MULTI_STATUS,e.getMessage());
-        }
-    }
-
-    @GetMapping("/get-listing-enums")
-    public ResponseEntity<Object> getListingEnums() {
-        try {
-            return responseHandlerService.generateResponse("Listing enums fetched", HttpStatus.OK, productService.getListingEnums());
-        } catch (Exception e) {
-            return responseHandlerService.generateResponse("An error occurred while fetching listing enums", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 

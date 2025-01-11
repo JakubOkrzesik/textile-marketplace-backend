@@ -20,4 +20,5 @@ public class UserDto {
     private List<ProductDTO> productListings;
     private List<OrderDTO> ordersAsSeller;
     private List<OrderDTO> ordersAsBuyer;
+    private SubscriptionDTO subscription;
 }

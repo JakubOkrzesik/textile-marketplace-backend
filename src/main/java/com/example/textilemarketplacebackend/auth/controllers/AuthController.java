@@ -39,7 +39,7 @@ public class AuthController {
         } catch (ConstraintViolationException e) {
             return responseHandler.generateResponse("Invalid request. Please check your request params.", HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (UserAlreadyExistsException | NipAlreadyExistsException e) {
-            return responseHandler.generateResponse("Registration unsuccessful. User with this email already exists. Please log in.", HttpStatus.CONFLICT, e.getMessage());
+            return responseHandler.generateResponse("Registration unsuccessful. User with this data already exists. Please log in.", HttpStatus.CONFLICT, e.getMessage());
         } catch (InternalMailServiceErrorException e) {
             return responseHandler.generateResponse("Failure while sending the activation email.", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         } catch (InvalidMailRequestException e) {

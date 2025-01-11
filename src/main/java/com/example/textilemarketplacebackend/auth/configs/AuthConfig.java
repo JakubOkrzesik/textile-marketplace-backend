@@ -1,6 +1,5 @@
 package com.example.textilemarketplacebackend.auth.configs;
 
-import com.example.textilemarketplacebackend.auth.models.user.UserRepository;
 import com.example.textilemarketplacebackend.global.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -13,10 +12,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestTemplate;
-
-import java.net.http.HttpClient;
 
 @Configuration
 @RequiredArgsConstructor
