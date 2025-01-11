@@ -51,18 +51,22 @@ public class OrderService {
     public List<BuyerSellerDTO> getAllUserOrders(String authHeader) {
         User user = userService.extractUserFromToken(authHeader);
 
-        return orderRepository.findAllByBuyer(user).stream().map(order -> BuyerSellerDTO.builder()
-                .listingName(order.getProductListing().getProductName())
-                .productImage(order.getProductListing().getImages() != null && order.getProductListing().getImages().isEmpty() ? order.getProductListing().getImages().getFirst() : null)
-                .id(order.getId())
-                .listingQuantity(order.getProductListing().getQuantity())
-                .orderQuantity(order.getOrderQuantity())
-                .listingId(order.getProductListing().getId())
-                .newOrderPrice(order.getNewOrderPrice())
-                .oldOrderPrice(order.getProductListing().getPrice())
-                .orderStatus(order.getOrderStatus())
-                        .messages(order.getMessageList().stream().map(message -> modelMapper.map(message, MessageDTO.class)).toList())
-                .build())
+        return orderRepository.findAllByBuyer(user).stream().map(order -> {
+                    String image = (order.getProductListing().getImages() != null && !order.getProductListing().getImages().isEmpty()) ? order.getProductListing().getImages().getFirst() : null;
+
+                    return BuyerSellerDTO.builder()
+                            .listingName(order.getProductListing().getProductName())
+                            .productImage(image)
+                            .id(order.getId())
+                            .listingQuantity(order.getProductListing().getQuantity())
+                            .orderQuantity(order.getOrderQuantity())
+                            .listingId(order.getProductListing().getId())
+                            .newOrderPrice(order.getNewOrderPrice())
+                            .oldOrderPrice(order.getProductListing().getPrice())
+                            .orderStatus(order.getOrderStatus())
+                            .messages(order.getMessageList().stream().map(message -> modelMapper.map(message, MessageDTO.class)).toList())
+                            .build();
+                })
                 .toList();
     }
 
