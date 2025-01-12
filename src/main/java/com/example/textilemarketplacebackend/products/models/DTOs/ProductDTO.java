@@ -1,9 +1,6 @@
 package com.example.textilemarketplacebackend.products.models.DTOs;
 
-import com.example.textilemarketplacebackend.products.models.productEnums.FabricComposition;
-import com.example.textilemarketplacebackend.products.models.productEnums.FabricSafetyRequirements;
-import com.example.textilemarketplacebackend.products.models.productEnums.FabricTechnology;
-import com.example.textilemarketplacebackend.products.models.productEnums.FabricType;
+import com.example.textilemarketplacebackend.products.models.productEnums.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -49,6 +46,14 @@ public class ProductDTO {
 
     @NotNull(message = "Fabric safety requirements must not be null")
     private FabricSafetyRequirements safetyRequirements;
+
+    @NotNull(message = "Exporter field must not be null")
+    private ExporterEnum exporters;
+
+    @NotNull(message = "Original product name must not be null")
+    private OriginalProductName originalProductNames;
+
+    @NotNull(message = "Fabric safety requirements must not be null")
 
     @NotBlank(message = "Colour must not be blank")
     private String colour;

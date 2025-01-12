@@ -1,9 +1,6 @@
 package com.example.textilemarketplacebackend.products.models.DTOs;
 
-import com.example.textilemarketplacebackend.products.models.productEnums.FabricComposition;
-import com.example.textilemarketplacebackend.products.models.productEnums.FabricSafetyRequirements;
-import com.example.textilemarketplacebackend.products.models.productEnums.FabricTechnology;
-import com.example.textilemarketplacebackend.products.models.productEnums.FabricType;
+import com.example.textilemarketplacebackend.products.models.productEnums.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,4 +15,6 @@ public class ProductEnumDTO {
     private FabricComposition[] compositions;
     private FabricTechnology[] technologies;
     private FabricSafetyRequirements[] safetyRequirements;
+    private ExporterEnum[] exporters;
+    private OriginalProductName[] originalProductNames;
 }

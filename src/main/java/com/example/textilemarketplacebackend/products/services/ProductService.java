@@ -7,10 +7,7 @@ import com.example.textilemarketplacebackend.products.models.*;
 import com.example.textilemarketplacebackend.products.models.DTOs.ProductDTO;
 import com.example.textilemarketplacebackend.products.models.DTOs.ProductEnumDTO;
 import com.example.textilemarketplacebackend.products.models.DTOs.BuyerSellerDTO;
-import com.example.textilemarketplacebackend.products.models.productEnums.FabricComposition;
-import com.example.textilemarketplacebackend.products.models.productEnums.FabricSafetyRequirements;
-import com.example.textilemarketplacebackend.products.models.productEnums.FabricTechnology;
-import com.example.textilemarketplacebackend.products.models.productEnums.FabricType;
+import com.example.textilemarketplacebackend.products.models.productEnums.*;
 import com.example.textilemarketplacebackend.mail.models.MailRequest;
 import com.example.textilemarketplacebackend.mail.models.MailRequestType;
 import com.example.textilemarketplacebackend.mail.services.EmailService;
@@ -108,6 +105,8 @@ public class ProductService {
                 .composition(productDTO.getComposition())
                 .technologies(productDTO.getTechnologies())
                 .safetyRequirements(productDTO.getSafetyRequirements())
+                .exporters(productDTO.getExporters())
+                .originalProductNames(productDTO.getOriginalProductNames())
                 .colour(productDTO.getColour())
                 .width(productDTO.getWidth())
                 .user(user)
@@ -172,6 +171,8 @@ public class ProductService {
                 .compositions(FabricComposition.values())
                 .technologies(FabricTechnology.values())
                 .safetyRequirements(FabricSafetyRequirements.values())
+                .originalProductNames(OriginalProductName.values())
+                .exporters(ExporterEnum.values())
                 .build();
     }
 }

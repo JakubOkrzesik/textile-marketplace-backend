@@ -1,9 +1,6 @@
 package com.example.textilemarketplacebackend.products.models;
 
-import com.example.textilemarketplacebackend.products.models.productEnums.FabricComposition;
-import com.example.textilemarketplacebackend.products.models.productEnums.FabricSafetyRequirements;
-import com.example.textilemarketplacebackend.products.models.productEnums.FabricTechnology;
-import com.example.textilemarketplacebackend.products.models.productEnums.FabricType;
+import com.example.textilemarketplacebackend.products.models.productEnums.*;
 import com.example.textilemarketplacebackend.products.services.StringListConverter;
 import com.example.textilemarketplacebackend.orders.models.Order;
 import com.example.textilemarketplacebackend.auth.models.user.User;
@@ -62,6 +59,12 @@ public class ProductListing {
 
     @Column(name = "fabric_safety_requirements", nullable = false)
     private FabricSafetyRequirements safetyRequirements;
+
+    @Column(name = "exporter", nullable = false)
+    private ExporterEnum exporters;
+
+    @Column(name = "original_product_name", nullable = false)
+    private OriginalProductName originalProductNames;
 
     @Column(name = "colour", nullable = false, length = 50)
     private String colour;
