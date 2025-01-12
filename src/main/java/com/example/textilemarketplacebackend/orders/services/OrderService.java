@@ -225,7 +225,7 @@ public class OrderService {
             throw new UserUnauthorizedToPerformRequest("User not authorized to perform this request");
         }
 
-        if (!priceRequest.getMessage().isEmpty()) {
+        if (priceRequest.getMessage()!=null && !priceRequest.getMessage().isEmpty()) {
             List<Message> messages = order.getMessageList();
             Message message = Message.builder()
                     .sender(OrderEnum.BUYER)
