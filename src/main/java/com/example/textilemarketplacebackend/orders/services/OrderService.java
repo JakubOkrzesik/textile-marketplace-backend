@@ -216,11 +216,14 @@ public class OrderService {
         Long userId = user.getId();
         Long buyerId = order.getBuyer().getId();
         Long sellerId = order.getProductListing().getUser().getId();
+        OrderEnum sender;
 
         if (Objects.equals(userId, buyerId)) {
             order.setOrderStatus(OrderStatus.BUYER_NEGOTIATION);
+            sender = OrderEnum.BUYER;
         } else if (Objects.equals(userId, sellerId)) {
             order.setOrderStatus(OrderStatus.SELLER_NEGOTIATION);
+            sender = OrderEnum.SELLER;
         } else {
             throw new UserUnauthorizedToPerformRequest("User not authorized to perform this request");
         }
@@ -228,7 +231,7 @@ public class OrderService {
         if (!priceRequest.getMessage().isEmpty()) {
             List<Message> messages = order.getMessageList();
             Message message = Message.builder()
-                    .sender(OrderEnum.BUYER)
+                    .sender(sender)
                     .price(priceRequest.getPrice())
                     .message(priceRequest.getMessage())
                     .date(Date.from(Instant.now()))
