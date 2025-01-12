@@ -1,6 +1,7 @@
 package com.example.textilemarketplacebackend.products.services;
 
 import com.example.textilemarketplacebackend.auth.models.user.User;
+import com.example.textilemarketplacebackend.orders.models.DTOs.MessageDTO;
 import com.example.textilemarketplacebackend.orders.models.Order;
 import com.example.textilemarketplacebackend.products.models.*;
 import com.example.textilemarketplacebackend.products.models.DTOs.ProductDTO;
@@ -59,6 +60,7 @@ public class ProductService {
                             .listingQuantity(productListing.getQuantity())
                             .listingId(productListing.getId())
                             .oldOrderPrice(productListing.getPrice())
+                            .messages(order.getMessageList().stream().map(message -> modelMapper.map(message, MessageDTO.class)).toList())
                             .build();
 
                     buyerSellerDTO.setId(order.getId());

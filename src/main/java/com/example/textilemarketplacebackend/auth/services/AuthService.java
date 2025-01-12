@@ -128,6 +128,7 @@ public class AuthService {
 
         user.setActivated(true);
         user.setSubscription(Subscription.builder()
+                .user(user)
                 .endDate(LocalDate.now().plusMonths(1))
                 .build());
         userService.save(user);
