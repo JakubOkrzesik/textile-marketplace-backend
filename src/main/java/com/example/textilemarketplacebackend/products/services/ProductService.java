@@ -84,10 +84,16 @@ public class ProductService {
         return buyerSellerDTOList;
     }
 
-    public ProductDTO getProductById(Long id) {
+    public ProductDTO getProductById(Long id, String authHeader) {
         ProductListing productListing = productRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No offer found with this Id"));
-        return modelMapper.map(productListing, ProductDTO.class);
+
+        User user = userService.extractUserFromToken(authHeader);
+
+        ProductDTO productDTO = modelMapper.map(productListing, ProductDTO.class);
+        productDTO.setSeller(productListing.getUser().equals(user));
+
+        return productDTO;
     }
 
     public void postProduct(String authHeader, ProductDTO productDTO) {

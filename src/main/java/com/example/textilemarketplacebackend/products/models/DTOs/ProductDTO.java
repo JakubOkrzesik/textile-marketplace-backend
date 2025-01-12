@@ -60,4 +60,6 @@ public class ProductDTO {
 
     @NotBlank(message = "Width must not be blank")
     private String width;
+
+    private boolean isSeller;
 }

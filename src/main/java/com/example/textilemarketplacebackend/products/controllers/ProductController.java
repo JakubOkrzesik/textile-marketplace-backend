@@ -34,11 +34,11 @@ public class ProductController {
 
     //Fetch offers by designated ID
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getOfferById(@PathVariable Long id) {
+    public ResponseEntity<Object> getOfferById(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @PathVariable Long id) {
         try {
-            return responseHandlerService.generateResponse(String.format("Offer with id %d has been fetched", id), HttpStatus.OK, productService.getProductById(id));
+            return responseHandlerService.generateResponse(String.format("Offer with id %d has been fetched", id), HttpStatus.OK, productService.getProductById(id, authHeader));
         } catch (Exception e) {
-            return responseHandlerService.generateResponse("Fetching offer failed", HttpStatus.MULTI_STATUS, e);
+            return responseHandlerService.generateResponse("Fetching offer failed", HttpStatus.INTERNAL_SERVER_ERROR, e);
         }
     }
 
