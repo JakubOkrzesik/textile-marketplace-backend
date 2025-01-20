@@ -1,10 +1,7 @@
 services:
   mysql:
     image: 'mysql:latest'
-    environment:
-      - 'MYSQL_DATABASE=textile-marketplace-db'
-      - 'MYSQL_PASSWORD=secret'
-      - 'MYSQL_ROOT_PASSWORD=yomenik'
-      - 'MYSQL_USER=myuser'
+    env_file:
+      - .env
     ports:
-      - '3307:3306'
+      - '3306:3306'

@@ -6,9 +6,9 @@
     application:
       name: textile-marketplace-backend
     datasource:
-      url: jdbc:mysql://localhost:3307/mydatabase
-      username: root
-      password: yomenik
+      url: ${SPRING_DATASOURCE_URL}
+      username: ${MYSQL_ROOT_USERNAME}
+      password: ${MYSQL_ROOT_PASSWORD}
       driver-class-name: com.mysql.cj.jdbc.Driver
     jpa:
       hibernate:

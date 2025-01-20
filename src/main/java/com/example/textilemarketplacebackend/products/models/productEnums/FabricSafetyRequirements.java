@@ -6,4 +6,5 @@ public enum FabricSafetyRequirements {
     OEKO_TEX_STANDARD_CLASS_II,
     OEKO_TEX_STANDARD_CLASS_III,
     OEKO_TEX_STANDARD_CLASS_IV,
+    OTHER
 }
