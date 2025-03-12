@@ -2,7 +2,6 @@ package com.example.textilemarketplacebackend.global.services;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,4 +16,5 @@ public class EnvService {
     private final String AWS_SECRET_KEY = dotenv.get("AWS_SECRET_KEY");
     private final String AWS_S3_BUCKET_NAME = dotenv.get("AWS_S3_BUCKET_NAME");
     private final String AWS_REGION = dotenv.get("AWS_REGION");
+    private final String AWS_S3_POST_PROCESS_BUCKET = dotenv.get("AWS_S3_POST_PROCESS_BUCKET");
 }

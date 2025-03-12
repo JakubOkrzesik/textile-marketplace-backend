@@ -14,6 +14,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("api/v1/image")
@@ -24,7 +26,7 @@ public class ImageUploadController {
     private final StorageService storageService;
     Logger logger = LoggerFactory.getLogger(ImageUploadController.class);
 
-    @PutMapping(path = "/upload")
+    @PutMapping(path = "/s3_image_upload")
     public ResponseEntity<Object> uploadImage(@RequestPart MultipartFile file) {
         try {
             ImageServiceResponse response = imageService.uploadImage(file);
@@ -32,6 +34,16 @@ public class ImageUploadController {
             return ResponseEntity.ok(response);
         } catch (InvalidImageRequestException e) {
             return responseHandlerService.generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (Exception e) {
+            return responseHandlerService.generateResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+
+    @PutMapping("/upload")
+    public ResponseEntity<Object> uploadS3Image(@RequestPart MultipartFile file) {
+        try {
+            return responseHandlerService.generateResponse("Success", HttpStatus.OK, storageService.upload(file));
         } catch (Exception e) {
             return responseHandlerService.generateResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
